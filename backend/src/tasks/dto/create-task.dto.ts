@@ -1,5 +1,5 @@
 import { IsString, IsOptional, IsEnum, IsDateString, IsMongoId, IsArray } from 'class-validator';
-import { TaskStatus } from '../schemas/task.schema';
+import { TaskStatus, Label } from '../schemas/task.schema';
 import { Priority } from '../../projects/schemas/project.schema';
 
 export class CreateTaskDto {
@@ -33,6 +33,10 @@ export class CreateTaskDto {
 
     @IsOptional()
     @IsArray()
-    @IsString({ each: true })
-    labels?: string[];
+    @IsEnum(Label, { each: true })
+    labels?: Label[];
+
+    @IsOptional()
+    @IsMongoId()
+    parentTaskId?: string;
 }

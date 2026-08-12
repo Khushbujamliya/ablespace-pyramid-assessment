@@ -4,6 +4,14 @@ import { Priority } from '../../projects/schemas/project.schema';
 
 export type TaskDocument = HydratedDocument<Task>;
 
+export enum Label {
+    RESEARCH = 'Research',
+    DESIGN = 'Design',
+    DEVELOPMENT = 'Development',
+    TESTING = 'Testing',
+    DEPLOYMENT = 'Deployment',
+}
+
 export enum TaskStatus {
     BACKLOG = 'backlog',
     TODO = 'todo',
@@ -46,6 +54,9 @@ export class Task {
 
     @Prop({ type: Types.ObjectId, ref: 'User', required: true })
     reporter: Types.ObjectId;
+
+    @Prop({ type: Types.ObjectId, ref: 'Task', required: false })
+    parentTaskId?: Types.ObjectId;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);
