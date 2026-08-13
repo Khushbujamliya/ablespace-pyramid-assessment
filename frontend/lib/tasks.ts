@@ -27,3 +27,12 @@ export async function updateTaskStatus(taskId: string, status: TaskStatus) {
     if (!res.ok) throw new Error("Failed to update task");
     return res.json();
 }
+
+export async function updateTask(taskId: string, updates: Partial<Task>) {
+    const res = await apiFetch(`/tasks/${taskId}`, {
+        method: "PATCH",
+        body: JSON.stringify(updates),
+    });
+    if (!res.ok) throw new Error("Failed to update task");
+    return res.json();
+}
