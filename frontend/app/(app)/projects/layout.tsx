@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import { getToken } from "@/lib/api";
+import { getStoredTheme, applyTheme } from "@/lib/theme";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -18,6 +19,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             setChecked(true);
         }
     }, [router]);
+
+    useEffect(() => {
+        applyTheme(getStoredTheme());
+    }, []);
 
     if (!checked) return null;
 
