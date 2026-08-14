@@ -14,6 +14,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Task, TaskStatus, updateTaskStatus } from "@/lib/tasks";
 import { STATUS_COLUMNS } from "@/lib/taskStatus";
 import TaskCard from "./TaskCard";
+import AddTaskInput from "./AddTaskInput";
 
 function SortableCard({ task, onClick }: { task: Task; onClick: () => void }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: task._id });
@@ -30,11 +31,15 @@ function Column({
     label,
     tasks,
     onTaskClick,
+    projectId,
+    onTaskCreated,
 }: {
     status: TaskStatus;
     label: string;
     tasks: Task[];
     onTaskClick: (task: Task) => void;
+    projectId: string;
+    onTaskCreated: () => void;
 }) {
     const { setNodeRef } = useDroppable({ id: status });
     const columnTasks = tasks.filter((t) => t.status === status);
@@ -45,12 +50,13 @@ function Column({
                 {label} <span className="text-xs">({columnTasks.length})</span>
             </h3>
             <SortableContext items={columnTasks.map((t) => t._id)} strategy={verticalListSortingStrategy}>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 mb-2">
                     {columnTasks.map((task) => (
                         <SortableCard key={task._id} task={task} onClick={() => onTaskClick(task)} />
                     ))}
                 </div>
             </SortableContext>
+            <AddTaskInput projectId={projectId} status={status} onCreated={onTaskCreated} />
         </div>
     );
 }
@@ -59,10 +65,14 @@ export default function BoardView({
     tasks,
     onTaskUpdated,
     onTaskClick,
+    projectId,
+    onTaskCreated,
 }: {
     tasks: Task[];
     onTaskUpdated: (taskId: string, status: TaskStatus) => void;
     onTaskClick: (task: Task) => void;
+    projectId: string;
+    onTaskCreated: () => void;
 }) {
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -97,7 +107,15 @@ export default function BoardView({
                     <p className="text-sm text-text-muted">No tasks yet — create one to get started.</p>
                 )}
                 {STATUS_COLUMNS.map((col) => (
-                    <Column key={col.key} status={col.key} label={col.label} tasks={tasks} onTaskClick={onTaskClick} />
+                    <Column
+                        key={col.key}
+                        status={col.key}
+                        label={col.label}
+                        tasks={tasks}
+                        onTaskClick={onTaskClick}
+                        projectId={projectId}
+                        onTaskCreated={onTaskCreated}
+                    />
                 ))}
             </div>
         </DndContext>

@@ -36,3 +36,11 @@ export async function updateTask(taskId: string, updates: Partial<Task>) {
     if (!res.ok) throw new Error("Failed to update task");
     return res.json();
 }
+export async function createTask(title: string, status: TaskStatus, projectId: string) {
+    const res = await apiFetch("/tasks", {
+        method: "POST",
+        body: JSON.stringify({ title, status, projectId }),
+    });
+    if (!res.ok) throw new Error("Failed to create task");
+    return res.json();
+}

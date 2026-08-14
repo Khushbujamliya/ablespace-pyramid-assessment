@@ -7,13 +7,16 @@ import ListView from "@/components/ListView";
 import BoardView from "@/components/BoardView";
 import TaskModal from "@/components/TaskModal";
 
-
 export default function ProjectPage() {
     const { id } = useParams<{ id: string }>();
     const [tasks, setTasks] = useState<Task[]>([]);
     const [view, setView] = useState<"list" | "board">("list");
     const [loading, setLoading] = useState(true);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+    function refreshTasks() {
+        getProjectTasks(id).then(setTasks);
+    }
 
     useEffect(() => {
         getProjectTasks(id).then(setTasks).finally(() => setLoading(false));
@@ -49,9 +52,15 @@ export default function ProjectPage() {
             </div>
 
             {view === "list" ? (
-                <ListView tasks={tasks} onTaskClick={setSelectedTask} />
+                <ListView tasks={tasks} onTaskClick={setSelectedTask} projectId={id} onTaskCreated={refreshTasks} />
             ) : (
-                <BoardView tasks={tasks} onTaskUpdated={handleTaskUpdated} onTaskClick={setSelectedTask} />
+                <BoardView
+                    tasks={tasks}
+                    onTaskUpdated={handleTaskUpdated}
+                    onTaskClick={setSelectedTask}
+                    projectId={id}
+                    onTaskCreated={refreshTasks}
+                />
             )}
 
             {selectedTask && (
