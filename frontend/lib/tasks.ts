@@ -44,3 +44,8 @@ export async function createTask(title: string, status: TaskStatus, projectId: s
     if (!res.ok) throw new Error("Failed to create task");
     return res.json();
 }
+export async function getTask(taskId: string): Promise<Task> {
+    const res = await apiFetch(`/tasks/${taskId}`);
+    if (!res.ok) throw new Error("Failed to fetch task");
+    return res.json();
+}

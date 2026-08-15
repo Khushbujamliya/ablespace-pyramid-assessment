@@ -17,12 +17,12 @@ import TaskCard from "./TaskCard";
 import AddTaskInput from "./AddTaskInput";
 import { useState } from "react";
 
-function SortableCard({ task, onClick }: { task: Task; onClick: () => void }) {
+function SortableCard({ task }: { task: Task }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: task._id });
     const style = { transform: CSS.Transform.toString(transform), transition };
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            <TaskCard task={task} onClick={onClick} />
+            <TaskCard task={task} />
         </div>
     );
 }
@@ -31,21 +31,18 @@ function Column({
     status,
     label,
     tasks,
-    onTaskClick,
     projectId,
     onTaskCreated,
 }: {
     status: TaskStatus;
     label: string;
     tasks: Task[];
-    onTaskClick: (task: Task) => void;
     projectId: string;
     onTaskCreated: () => void;
 }) {
     const { setNodeRef } = useDroppable({ id: status });
     const columnTasks = tasks.filter((t) => t.status === status);
     const [addOpen, setAddOpen] = useState(false);
-
 
     return (
         <div ref={setNodeRef} className="flex-1 min-w-[220px] bg-surface-muted rounded-lg p-3">
@@ -66,7 +63,7 @@ function Column({
             <SortableContext items={columnTasks.map((t) => t._id)} strategy={verticalListSortingStrategy}>
                 <div className="flex flex-col gap-2 mb-2">
                     {columnTasks.map((task) => (
-                        <SortableCard key={task._id} task={task} onClick={() => onTaskClick(task)} />
+                        <SortableCard key={task._id} task={task} />
                     ))}
                 </div>
             </SortableContext>
@@ -84,13 +81,11 @@ function Column({
 export default function BoardView({
     tasks,
     onTaskUpdated,
-    onTaskClick,
     projectId,
     onTaskCreated,
 }: {
     tasks: Task[];
     onTaskUpdated: (taskId: string, status: TaskStatus) => void;
-    onTaskClick: (task: Task) => void;
     projectId: string;
     onTaskCreated: () => void;
 }) {
@@ -132,7 +127,6 @@ export default function BoardView({
                         status={col.key}
                         label={col.label}
                         tasks={tasks}
-                        onTaskClick={onTaskClick}
                         projectId={projectId}
                         onTaskCreated={onTaskCreated}
                     />

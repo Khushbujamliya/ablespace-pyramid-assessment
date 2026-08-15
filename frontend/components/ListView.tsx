@@ -3,21 +3,26 @@
 import { useState } from "react";
 import { Task } from "@/lib/tasks";
 import { STATUS_COLUMNS } from "@/lib/taskStatus";
-import TaskCard from "./TaskCard";
 import AddTaskInput from "./AddTaskInput";
+import { useRouter } from "next/navigation";
 
 export default function ListView({
     tasks,
-    onTaskClick,
     projectId,
     onTaskCreated,
 }: {
     tasks: Task[];
-    onTaskClick: (task: Task) => void;
     projectId: string;
     onTaskCreated: () => void;
 }) {
+    const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
     const [openStatus, setOpenStatus] = useState<string | null>(null);
+    const router = useRouter();
+
+    function formatDate(dateStr?: string) {
+        if (!dateStr) return "-";
+        return new Date(dateStr).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" });
+    }
 
     return (
         <div className="flex flex-col gap-6">
@@ -26,23 +31,58 @@ export default function ListView({
             )}
             {STATUS_COLUMNS.map((col) => {
                 const group = tasks.filter((t) => t.status === col.key);
+                const isCollapsed = collapsed[col.key];
+
                 return (
                     <div key={col.key}>
-                        <h3 className="text-sm font-semibold text-text-muted mb-2">
-                            {col.label} <span className="text-xs">({group.length})</span>
-                        </h3>
-                        <div className="flex flex-col gap-2 mb-2">
-                            {group.map((task) => (
-                                <TaskCard key={task._id} task={task} onClick={() => onTaskClick(task)} />
-                            ))}
-                        </div>
-                        <AddTaskInput
-                            projectId={projectId}
-                            status={col.key}
-                            onCreated={onTaskCreated}
-                            open={openStatus === col.key}
-                            onOpenChange={(open) => setOpenStatus(open ? col.key : null)}
-                        />
+                        <button
+                            onClick={() => setCollapsed((prev) => ({ ...prev, [col.key]: !prev[col.key] }))}
+                            className="flex items-center gap-1 text-sm font-semibold text-text mb-2"
+                        >
+                            <span className="text-xs">{isCollapsed ? "▶" : "▼"}</span>
+                            {col.label}
+                        </button>
+
+                        {!isCollapsed && (
+                            <div className="border border-border rounded-lg overflow-hidden mb-2">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="bg-surface-muted text-text-muted text-left">
+                                            <th className="px-3 py-2 font-medium">Task</th>
+                                            <th className="px-3 py-2 font-medium">Priority</th>
+                                            <th className="px-3 py-2 font-medium">Due Date</th>
+                                            <th className="px-3 py-2 font-medium w-16">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {group.map((task) => (
+                                            <tr
+                                                key={task._id}
+                                                onClick={() => router.push(`/tasks/${task._id}`)}
+                                                className="border-t border-border hover:bg-surface-muted cursor-pointer"
+                                            >
+                                                <td className="px-3 py-2 text-text">{task.title}</td>
+                                                <td className="px-3 py-2 text-text-muted">
+                                                    {task.priority && task.priority !== "no-priority" ? task.priority : "-"}
+                                                </td>
+                                                <td className="px-3 py-2 text-text-muted">{formatDate(task.dueDate)}</td>
+                                                <td className="px-3 py-2 text-text-muted">⋯</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+
+                        {!isCollapsed && (
+                            <AddTaskInput
+                                projectId={projectId}
+                                status={col.key}
+                                onCreated={onTaskCreated}
+                                open={openStatus === col.key}
+                                onOpenChange={(open) => setOpenStatus(open ? col.key : null)}
+                            />
+                        )}
                     </div>
                 );
             })}
