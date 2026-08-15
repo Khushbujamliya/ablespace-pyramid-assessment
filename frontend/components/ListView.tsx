@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Task } from "@/lib/tasks";
 import { STATUS_COLUMNS } from "@/lib/taskStatus";
 import TaskCard from "./TaskCard";
@@ -14,6 +17,8 @@ export default function ListView({
     projectId: string;
     onTaskCreated: () => void;
 }) {
+    const [openStatus, setOpenStatus] = useState<string | null>(null);
+
     return (
         <div className="flex flex-col gap-6">
             {tasks.length === 0 && (
@@ -31,7 +36,13 @@ export default function ListView({
                                 <TaskCard key={task._id} task={task} onClick={() => onTaskClick(task)} />
                             ))}
                         </div>
-                        <AddTaskInput projectId={projectId} status={col.key} onCreated={onTaskCreated} />
+                        <AddTaskInput
+                            projectId={projectId}
+                            status={col.key}
+                            onCreated={onTaskCreated}
+                            open={openStatus === col.key}
+                            onOpenChange={(open) => setOpenStatus(open ? col.key : null)}
+                        />
                     </div>
                 );
             })}

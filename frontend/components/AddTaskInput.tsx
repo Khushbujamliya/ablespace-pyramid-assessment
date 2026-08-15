@@ -7,12 +7,15 @@ export default function AddTaskInput({
     projectId,
     status,
     onCreated,
+    open,
+    onOpenChange,
 }: {
     projectId: string;
     status: TaskStatus;
     onCreated: () => void;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
 }) {
-    const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
     const [saving, setSaving] = useState(false);
 
@@ -22,7 +25,7 @@ export default function AddTaskInput({
         try {
             await createTask(title.trim(), status, projectId);
             setTitle("");
-            setOpen(false);
+            onOpenChange(false);
             onCreated();
         } finally {
             setSaving(false);
@@ -32,7 +35,7 @@ export default function AddTaskInput({
     if (!open) {
         return (
             <button
-                onClick={() => setOpen(true)}
+                onClick={() => onOpenChange(true)}
                 className="text-sm text-text-muted hover:text-text px-1 py-1"
             >
                 + Add Task
@@ -59,7 +62,7 @@ export default function AddTaskInput({
                     {saving ? "Adding..." : "Add"}
                 </button>
                 <button
-                    onClick={() => setOpen(false)}
+                    onClick={() => onOpenChange(false)}
                     className="text-xs text-text-muted px-2 py-1"
                 >
                     Cancel

@@ -15,6 +15,7 @@ import { Task, TaskStatus, updateTaskStatus } from "@/lib/tasks";
 import { STATUS_COLUMNS } from "@/lib/taskStatus";
 import TaskCard from "./TaskCard";
 import AddTaskInput from "./AddTaskInput";
+import { useState } from "react";
 
 function SortableCard({ task, onClick }: { task: Task; onClick: () => void }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: task._id });
@@ -43,12 +44,25 @@ function Column({
 }) {
     const { setNodeRef } = useDroppable({ id: status });
     const columnTasks = tasks.filter((t) => t.status === status);
+    const [addOpen, setAddOpen] = useState(false);
+
 
     return (
         <div ref={setNodeRef} className="flex-1 min-w-[220px] bg-surface-muted rounded-lg p-3">
-            <h3 className="text-sm font-semibold text-text-muted mb-3">
-                {label} <span className="text-xs">({columnTasks.length})</span>
-            </h3>
+            <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-text-muted">
+                    {label} <span className="text-xs">({columnTasks.length})</span>
+                </h3>
+                <div className="flex items-center gap-1 text-text-muted">
+                    <button
+                        onClick={() => setAddOpen(true)}
+                        className="w-5 h-5 flex items-center justify-center rounded hover:bg-surface text-sm leading-none"
+                    >
+                        +
+                    </button>
+                    <button className="w-5 h-5 flex items-center justify-center rounded hover:bg-surface text-sm leading-none">⋯</button>
+                </div>
+            </div>
             <SortableContext items={columnTasks.map((t) => t._id)} strategy={verticalListSortingStrategy}>
                 <div className="flex flex-col gap-2 mb-2">
                     {columnTasks.map((task) => (
@@ -56,7 +70,13 @@ function Column({
                     ))}
                 </div>
             </SortableContext>
-            <AddTaskInput projectId={projectId} status={status} onCreated={onTaskCreated} />
+            <AddTaskInput
+                projectId={projectId}
+                status={status}
+                onCreated={onTaskCreated}
+                open={addOpen}
+                onOpenChange={setAddOpen}
+            />
         </div>
     );
 }
