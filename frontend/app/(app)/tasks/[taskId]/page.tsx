@@ -42,7 +42,7 @@ export default function TaskDetailPage() {
     if (!task) return <div className="text-text-muted">Task not found.</div>;
 
     return (
-        <div className="flex gap-8">
+        <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
             <div className="flex-1 max-w-2xl">
                 <button onClick={() => router.back()} className="text-sm text-text-muted mb-4">
                     ← Back
@@ -78,7 +78,7 @@ export default function TaskDetailPage() {
                 )}
             </div>
 
-            <div className="w-64 border-l border-border pl-6">
+            <div className="w-full sm:w-64 border-t sm:border-t-0 sm:border-l border-border pt-6 sm:pt-0 sm:pl-6">
                 <div className="text-sm font-semibold text-text mb-4">Details</div>
 
                 <div className="flex flex-col gap-4 text-sm">
