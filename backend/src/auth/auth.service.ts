@@ -25,4 +25,21 @@ export class AuthService {
             },
         };
     }
+
+    async googleLogin(googleUser: { email: string; fullName: string; picture?: string }) {
+        const user = await this.usersService.findOrCreateGoogleUser(googleUser);
+
+        const payload = { sub: user._id, isGuest: false };
+        const access_token = this.jwtService.sign(payload);
+
+        return {
+            access_token,
+            user: {
+                id: user._id,
+                fullName: user.fullName,
+                username: user.username,
+                isGuest: user.isGuest,
+            },
+        };
+    }
 }

@@ -26,4 +26,19 @@ export class UsersService {
     async updateMe(userId: string, updates: { fullName?: string; username?: string }): Promise<UserDocument | null> {
         return this.userModel.findByIdAndUpdate(userId, updates, { new: true }).exec();
     }
+
+    async findOrCreateGoogleUser(googleUser: { email: string; fullName: string; picture?: string }): Promise<UserDocument> {
+        const existing = await this.userModel.findOne({ email: googleUser.email }).exec();
+        if (existing) return existing;
+
+        const usernameBase = googleUser.email.split('@')[0];
+        const user = new this.userModel({
+            email: googleUser.email,
+            fullName: googleUser.fullName,
+            username: usernameBase,
+            avatar: googleUser.picture,
+            isGuest: false,
+        });
+        return user.save();
+    }
 }
