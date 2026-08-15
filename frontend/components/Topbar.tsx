@@ -1,30 +1,14 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { getStoredTheme, applyTheme, Theme } from "@/lib/theme";
-
-export default function Topbar() {
-    const [theme, setTheme] = useState<Theme>("light");
-
-    useEffect(() => {
-        setTheme(getStoredTheme());
-    }, []);
-
-    function toggleTheme() {
-        const next: Theme = theme === "light" ? "dark" : "light";
-        setTheme(next);
-        applyTheme(next);
-    }
-
+export default function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
     return (
-        <header className="h-14 border-b border-border bg-surface flex items-center justify-between px-6">
-            <span className="text-sm text-text-muted">Workspace</span>
+        <header className="h-14 border-b border-border bg-surface flex items-center gap-3 px-4 sm:px-6">
             <button
-                onClick={toggleTheme}
-                className="text-sm px-3 py-1.5 rounded border border-border text-text hover:bg-surface-muted"
+                onClick={onMenuClick}
+                className="sm:hidden text-text-muted w-8 h-8 flex items-center justify-center rounded hover:bg-surface-muted"
+                aria-label="Toggle menu"
             >
-                {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+                ☰
             </button>
+            <span className="text-sm text-text-muted">Workspace</span>
         </header>
     );
 }

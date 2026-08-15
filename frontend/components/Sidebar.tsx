@@ -12,7 +12,7 @@ const COLOR_OPTIONS: { key: ColorMode; hex: string }[] = [
     { key: "black", hex: "#171717" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
     const [username, setUsername] = useState<string>("");
     const [colorMode, setColorMode] = useState<ColorMode>("blue");
     const [theme, setTheme] = useState<Theme>("light");
@@ -44,7 +44,10 @@ export default function Sidebar() {
     }
 
     return (
-        <aside className="w-64 bg-surface border-r border-border flex flex-col p-4 relative">
+        <aside
+            className={`fixed sm:static inset-y-0 left-0 z-40 w-64 bg-surface border-r border-border flex flex-col p-4 transform transition-transform duration-200 ${open ? "translate-x-0" : "-translate-x-full sm:translate-x-0"
+                }`}
+        >
             <button
                 onClick={() => setMenuOpen((prev) => !prev)}
                 className="flex items-center gap-2 mb-6 px-1"
@@ -89,8 +92,8 @@ export default function Sidebar() {
                 Workspace <span className="text-[10px]">▾</span>
             </div>
             <nav className="flex flex-col gap-1 text-sm text-text-muted mb-6">
-                <a href="/projects" className="px-3 py-2 rounded hover:bg-surface-muted">Tasks</a>
-                <a href="/projects" className="px-3 py-2 rounded hover:bg-surface-muted">Projects</a>
+                <a href="/projects" onClick={onClose} className="px-3 py-2 rounded hover:bg-surface-muted">Tasks</a>
+                <a href="/projects" onClick={onClose} className="px-3 py-2 rounded hover:bg-surface-muted">Projects</a>
             </nav>
         </aside>
     );
