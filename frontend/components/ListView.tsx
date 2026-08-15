@@ -24,6 +24,16 @@ export default function ListView({
         return new Date(dateStr).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" });
     }
 
+    function priorityColor(priority: string) {
+        switch (priority) {
+            case "urgent": return "text-danger";
+            case "high": return "text-orange-600";
+            case "medium": return "text-amber-600";
+            case "low": return "text-text-muted";
+            default: return "text-text-muted";
+        }
+    }
+
     return (
         <div className="flex flex-col gap-6">
             {tasks.length === 0 && (
@@ -62,8 +72,15 @@ export default function ListView({
                                                 className="border-t border-border hover:bg-surface-muted cursor-pointer"
                                             >
                                                 <td className="px-3 py-2 text-text">{task.title}</td>
-                                                <td className="px-3 py-2 text-text-muted">
-                                                    {task.priority && task.priority !== "no-priority" ? task.priority : "-"}
+                                                <td className="px-3 py-2">
+                                                    {task.priority && task.priority !== "no-priority" ? (
+                                                        <span className={`inline-flex items-center gap-1.5 ${priorityColor(task.priority)}`}>
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                                                            {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-text-muted">-</span>
+                                                    )}
                                                 </td>
                                                 <td className="px-3 py-2 text-text-muted">{formatDate(task.dueDate)}</td>
                                                 <td className="px-3 py-2 text-text-muted">⋯</td>
