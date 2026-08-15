@@ -51,12 +51,14 @@ function Column({
                     {label} <span className="text-xs">({columnTasks.length})</span>
                 </h3>
                 <div className="flex items-center gap-1 text-text-muted">
-                    <button
-                        onClick={() => setAddOpen(true)}
-                        className="w-5 h-5 flex items-center justify-center rounded hover:bg-surface text-sm leading-none"
-                    >
-                        +
-                    </button>
+                    {projectId && (
+                        <button
+                            onClick={() => setAddOpen(true)}
+                            className="w-5 h-5 flex items-center justify-center rounded hover:bg-surface text-sm leading-none"
+                        >
+                            +
+                        </button>
+                    )}
                     <button className="w-5 h-5 flex items-center justify-center rounded hover:bg-surface text-sm leading-none">⋯</button>
                 </div>
             </div>
@@ -67,13 +69,15 @@ function Column({
                     ))}
                 </div>
             </SortableContext>
-            <AddTaskInput
-                projectId={projectId}
-                status={status}
-                onCreated={onTaskCreated}
-                open={addOpen}
-                onOpenChange={setAddOpen}
-            />
+            {projectId && (
+                <AddTaskInput
+                    projectId={projectId}
+                    status={status}
+                    onCreated={onTaskCreated}
+                    open={addOpen}
+                    onOpenChange={setAddOpen}
+                />
+            )}
         </div>
     );
 }
