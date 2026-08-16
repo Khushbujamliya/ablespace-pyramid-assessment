@@ -5,6 +5,7 @@ export type UserProfile = {
     fullName: string;
     username: string;
     title?: string;
+    email?: string;
     isGuest: boolean;
 };
 
