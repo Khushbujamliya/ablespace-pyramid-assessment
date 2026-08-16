@@ -17,6 +17,14 @@ import TaskCard from "./TaskCard";
 import TaskModal from "./TaskModal";
 import { useState } from "react";
 
+const STATUS_COLORS: Record<string, string> = {
+    backlog: "#6B7280",
+    todo: "#4F46E5",
+    doing: "#D97706",
+    completed: "#16A34A",
+    onhold: "#DC2626",
+};
+
 type FieldsVisibility = { priority: boolean; dueDate: boolean; labels: boolean };
 
 function SortableCard({ task, onClick, fields }: { task: Task; onClick: () => void; fields: FieldsVisibility }) {
@@ -57,9 +65,17 @@ function Column({
     const [showCreateModal, setShowCreateModal] = useState(false);
 
     return (
-        <div ref={setNodeRef} className="flex-1 min-w-[240px] bg-surface-muted rounded-lg p-3">
+        <div
+            ref={setNodeRef}
+            style={{ borderTopColor: STATUS_COLORS[status] || "#6B7280", borderTopWidth: "3px" }}
+            className="flex-1 min-w-[240px] bg-surface-muted rounded-lg p-3 border-t"
+        >
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-text-muted">
+                <h3 className="text-sm font-semibold text-text-muted flex items-center gap-2">
+                    <span
+                        className="w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: STATUS_COLORS[status] || "#6B7280" }}
+                    ></span>
                     {label} <span className="text-xs">({columnTasks.length})</span>
                 </h3>
                 <div className="flex items-center gap-1 text-text-muted">
@@ -76,6 +92,15 @@ function Column({
             </div>
             <SortableContext items={columnTasks.map((t) => t._id)} strategy={verticalListSortingStrategy}>
                 <div className="flex flex-col gap-2 mb-2">
+                    {columnTasks.length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-8 text-text-muted opacity-60">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <path d="M8 12h8M12 8v8" strokeLinecap="round" />
+                            </svg>
+                            <p className="text-xs mt-2">Nothing here yet</p>
+                        </div>
+                    )}
                     {columnTasks.map((task) => (
                         <SortableCard key={task._id} task={task} onClick={() => onTaskClick(task)} fields={fields} />
                     ))}

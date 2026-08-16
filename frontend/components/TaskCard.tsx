@@ -6,6 +6,16 @@ function formatDate(dateStr?: string) {
     return date.toLocaleDateString("en-US", { day: "2-digit", month: "short" });
 }
 
+function priorityBorderColor(priority?: string) {
+    switch (priority) {
+        case "urgent": return "#DC2626";
+        case "high": return "#EA580C";
+        case "medium": return "#D97706";
+        case "low": return "#6B7280";
+        default: return "transparent";
+    }
+}
+
 export default function TaskCard({
     task,
     onClick,
@@ -25,7 +35,8 @@ export default function TaskCard({
     return (
         <div
             onClick={onClick}
-            className="bg-surface border border-border rounded-lg p-3 shadow cursor-pointer hover:border-primary/40"
+            style={{ borderLeftColor: priorityBorderColor(task.priority), borderLeftWidth: "3px" }}
+            className="bg-surface border border-border rounded-lg p-3 shadow cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-150"
         >
             <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">

@@ -86,6 +86,17 @@ export default function TasksPage() {
                     />
                 </div>
             </div>
+
+            <div className="flex items-center gap-4 mb-4 text-sm text-text-muted">
+                <span>{filteredTasks.length} tasks</span>
+                <span>·</span>
+                <span>{filteredTasks.filter((t) => t.status === "completed").length} completed</span>
+                <span>·</span>
+                <span className="text-danger">
+                    {filteredTasks.filter((t) => t.dueDate && new Date(t.dueDate) < new Date() && t.status !== "completed").length} overdue
+                </span>
+            </div>
+
             <BoardView
                 tasks={filteredTasks}
                 onTaskUpdated={handleTaskUpdated}
