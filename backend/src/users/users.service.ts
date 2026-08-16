@@ -23,7 +23,7 @@ export class UsersService {
         return this.userModel.findById(id).exec();
     }
 
-    async updateMe(userId: string, updates: { fullName?: string; username?: string }): Promise<UserDocument | null> {
+    async updateMe(userId: string, updates: { fullName?: string; username?: string; title?: string }): Promise<UserDocument | null> {
         return this.userModel.findByIdAndUpdate(userId, updates, { new: true }).exec();
     }
 

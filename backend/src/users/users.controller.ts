@@ -13,7 +13,7 @@ export class UsersController {
     }
 
     @Patch('me')
-    updateMe(@Body() body: { fullName?: string; username?: string }, @Req() req: any) {
+    updateMe(@Body() body: { fullName?: string; username?: string; title?: string }, @Req() req: any) {
         return this.usersService.updateMe(req.user.userId, body);
     }
 }

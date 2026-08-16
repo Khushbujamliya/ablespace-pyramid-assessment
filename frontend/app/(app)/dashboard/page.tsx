@@ -42,21 +42,21 @@ export default function DashboardPage() {
             <h1 className="text-lg font-semibold mb-6">Dashboard</h1>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-                <div className="bg-surface border border-border rounded-lg p-4">
+                <div style={{ borderTopColor: "#4F46E5", borderTopWidth: "3px" }} className="bg-surface border border-border rounded-lg shadow-md p-4">
                     <p className="text-xs text-text-muted mb-1">Total Tasks</p>
-                    <p className="text-2xl font-semibold text-text">{tasks.length}</p>
+                    <p className="text-3xl font-bold text-text">{tasks.length}</p>
                 </div>
-                <div className="bg-surface border border-border rounded-lg p-4">
+                <div style={{ borderTopColor: "#16A34A", borderTopWidth: "3px" }} className="bg-surface border border-border rounded-lg shadow-md p-4">
                     <p className="text-xs text-text-muted mb-1">Completed</p>
-                    <p className="text-2xl font-semibold text-text">{completedCount}</p>
+                    <p className="text-3xl font-bold text-text">{completedCount}</p>
                 </div>
-                <div className="bg-surface border border-border rounded-lg p-4">
+                <div style={{ borderTopColor: "#DC2626", borderTopWidth: "3px" }} className="bg-surface border border-border rounded-lg shadow-md p-4">
                     <p className="text-xs text-text-muted mb-1">Overdue</p>
-                    <p className="text-2xl font-semibold text-danger">{overdueCount}</p>
+                    <p className="text-3xl font-bold text-danger">{overdueCount}</p>
                 </div>
-                <div className="bg-surface border border-border rounded-lg p-4">
+                <div style={{ borderTopColor: "#D97706", borderTopWidth: "3px" }} className="bg-surface border border-border rounded-lg shadow-md p-4">
                     <p className="text-xs text-text-muted mb-1">Projects</p>
-                    <p className="text-2xl font-semibold text-text">{projects.length}</p>
+                    <p className="text-3xl font-bold text-text">{projects.length}</p>
                 </div>
             </div>
 
@@ -74,7 +74,7 @@ export default function DashboardPage() {
                             <Link
                                 key={task._id}
                                 href={`/tasks/${task._id}`}
-                                className="bg-surface border border-border rounded-lg p-3 hover:border-primary/40 text-sm text-text flex items-center justify-between"
+                                className="bg-surface border border-border rounded-lg shadow p-3 hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 text-sm text-text flex items-center justify-between"
                             >
                                 <span>{task.title}</span>
                                 <span className="text-xs text-text-muted">

@@ -4,6 +4,7 @@ export type UserProfile = {
     _id: string;
     fullName: string;
     username: string;
+    title?: string;
     isGuest: boolean;
 };
 
@@ -13,7 +14,7 @@ export async function getMe(): Promise<UserProfile> {
     return res.json();
 }
 
-export async function updateMe(updates: { fullName?: string; username?: string }): Promise<UserProfile> {
+export async function updateMe(updates: { fullName?: string; username?: string; title?: string }): Promise<UserProfile> {
     const res = await apiFetch("/users/me", {
         method: "PATCH",
         body: JSON.stringify(updates),
