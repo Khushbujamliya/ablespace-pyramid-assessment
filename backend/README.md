@@ -45,9 +45,10 @@ CORS is configured in `src/main.ts` to allow requests from both the local fronte
 - `POST /auth/guest` — guest login, returns a JWT
 - `GET /auth/google`, `GET /auth/google/callback` — Google OAuth flow
 - `GET/POST/PATCH/DELETE /projects` — project CRUD
-- `GET/POST/PATCH/DELETE /tasks` — task CRUD, including subtasks via `parentTaskId`
+- `GET/POST/PATCH/DELETE /tasks` — task CRUD, including subtasks via `parentTaskId`; tasks also support `members`, `labels`, `teams`, `resources`, `dueDate`, `startDate`, and `endDate`
 - `GET /tasks/:id/subtasks` — fetch subtasks for a task
 - `GET /tasks/:id/activity` — activity log for a task
+- `GET /users` — list users (used to populate the task member picker)
 - `GET/PATCH /users/me` — current user profile
 
 ## Key Structure

@@ -29,12 +29,13 @@ See `/frontend/README.md` and `/backend/README.md` for setup instructions specif
 
 - Guest login (no signup required) and Google OAuth login
 - Project management: create, edit, delete, assign a lead, set due dates
-- Task management: board view (drag-and-drop-style columns) and table/list view
-- Task details: description, status, priority, due date, subtasks, and threaded comments
-- Activity feed auto-logged on task status/priority changes
-- Search and filter tasks by priority, status, and title
+- Task management: board view (drag-and-drop-style columns) and table/list view, switchable per user preference
+- Configurable table columns (Priority, Members, Due Date, Labels, Status, Reporter) via the Fields menu
+- Task details: description, status, priority, due/start/end dates (calendar picker), members, labels, resource links, subtasks, and threaded comments
+- Live activity feed in the task detail view, auto-logged on status/priority changes
+- Search and filter tasks and projects by priority, status, and title
 - Light/dark theme plus 6 accent color options, both persisted across sessions
-- Fully responsive layout (desktop, tablet, mobile)
+- Fully responsive layout (desktop, tablet, mobile), including an off-canvas mobile sidebar and horizontally-scrollable tables/dropdowns on small screens
 
 ## Deviations from the Figma Design
 
@@ -42,7 +43,7 @@ The assignment PDF only explicitly requires **Guest Login**. The following are d
 
 1. **Google OAuth was implemented in addition to Guest Login.** The Figma design shows a "Login with Google" button, but the written requirements only call for Guest Login. Both are fully functional in this build.
 2. **No "no-project" task support.** The current schema requires every task to belong to a project. On the global `/tasks` board (which shows tasks across all projects), creating a new task defaults it to the user's first project, since there's no unassigned/no-project state in the data model yet.
-3. **Minor visual differences remain** in spacing and shadow depth in a few places compared to the Figma file. The overall structure, layout, and interaction patterns were matched closely, but pixel-perfect matching was not pursued for every minor spacing detail in the interest of time.
+3. **Avatars are generated, not illustrated.** The Figma file uses custom illustrated profile pictures; since those are design assets rather than user data, the app generates a consistent colored initial-avatar per user instead. Layout, color usage, iconography, and interaction patterns (dropdowns, calendar picker, List/Board toggle, etc.) were matched closely against the Figma reference screens.
 
 ## Part 2 Submission
 

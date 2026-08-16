@@ -38,5 +38,5 @@ This app is deployed on Vercel. The production environment variable `NEXT_PUBLIC
 
 - `app/(auth)/` — login and OAuth callback pages
 - `app/(app)/` — authenticated app shell: dashboard, tasks, projects, task detail, profile
-- `lib/` — API client functions (tasks, projects, users, theme)
-- `components/` — shared UI components (sidebar, topbar, task card, modals, etc.)
+- `lib/` — API client functions (tasks, projects, users, activity, theme)
+- `components/` — shared UI: `Sidebar`, `Topbar`, `TaskCard`, `TaskModal`, `ListView`/`BoardView`, and a shared design-system layer (`icons.tsx`, `Avatar.tsx`, `PriorityMenu.tsx`, `DateRangePicker.tsx`, `FieldsMenu.tsx`) used consistently across pages to match the Figma reference
