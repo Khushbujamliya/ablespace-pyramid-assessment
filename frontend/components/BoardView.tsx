@@ -14,15 +14,15 @@ import { CSS } from "@dnd-kit/utilities";
 import { Task, TaskStatus, updateTaskStatus } from "@/lib/tasks";
 import { STATUS_COLUMNS } from "@/lib/taskStatus";
 import TaskCard from "./TaskCard";
-import AddTaskInput from "./AddTaskInput";
+import TaskModal from "./TaskModal";
 import { useState } from "react";
 
-function SortableCard({ task }: { task: Task }) {
+function SortableCard({ task, onClick }: { task: Task; onClick: () => void }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: task._id });
     const style = { transform: CSS.Transform.toString(transform), transition };
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            <TaskCard task={task} />
+            <TaskCard task={task} onClick={onClick} />
         </div>
     );
 }
@@ -33,27 +33,29 @@ function Column({
     tasks,
     projectId,
     onTaskCreated,
+    onTaskClick,
 }: {
     status: TaskStatus;
     label: string;
     tasks: Task[];
     projectId: string;
     onTaskCreated: () => void;
+    onTaskClick: (task: Task) => void;
 }) {
     const { setNodeRef } = useDroppable({ id: status });
     const columnTasks = tasks.filter((t) => t.status === status);
-    const [addOpen, setAddOpen] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     return (
-        <div ref={setNodeRef} className="flex-1 min-w-[220px] bg-surface-muted rounded-lg p-3">
-            <div className="flex items-center justify-between mb-3">
+        <div ref={setNodeRef} className="flex-1 min-w-[240px] bg-surface-muted rounded-lg p-3">
+            <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-text-muted">
                     {label} <span className="text-xs">({columnTasks.length})</span>
                 </h3>
                 <div className="flex items-center gap-1 text-text-muted">
                     {projectId && (
                         <button
-                            onClick={() => setAddOpen(true)}
+                            onClick={() => setShowCreateModal(true)}
                             className="w-5 h-5 flex items-center justify-center rounded hover:bg-surface text-sm leading-none"
                         >
                             +
@@ -65,17 +67,26 @@ function Column({
             <SortableContext items={columnTasks.map((t) => t._id)} strategy={verticalListSortingStrategy}>
                 <div className="flex flex-col gap-2 mb-2">
                     {columnTasks.map((task) => (
-                        <SortableCard key={task._id} task={task} />
+                        <SortableCard key={task._id} task={task} onClick={() => onTaskClick(task)} />
                     ))}
                 </div>
             </SortableContext>
             {projectId && (
-                <AddTaskInput
+                <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="text-sm text-text-muted hover:text-text px-1 py-1"
+                >
+                    + Add Task
+                </button>
+            )}
+
+            {showCreateModal && (
+                <TaskModal
+                    mode="create"
+                    defaultStatus={status}
                     projectId={projectId}
-                    status={status}
-                    onCreated={onTaskCreated}
-                    open={addOpen}
-                    onOpenChange={setAddOpen}
+                    onClose={() => setShowCreateModal(false)}
+                    onSaved={onTaskCreated}
                 />
             )}
         </div>
@@ -93,6 +104,8 @@ export default function BoardView({
     projectId: string;
     onTaskCreated: () => void;
 }) {
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -133,9 +146,20 @@ export default function BoardView({
                         tasks={tasks}
                         projectId={projectId}
                         onTaskCreated={onTaskCreated}
+                        onTaskClick={setSelectedTask}
                     />
                 ))}
             </div>
+
+            {selectedTask && (
+                <TaskModal
+                    mode="edit"
+                    task={selectedTask}
+                    projectId={projectId}
+                    onClose={() => setSelectedTask(null)}
+                    onSaved={onTaskCreated}
+                />
+            )}
         </DndContext>
     );
 }

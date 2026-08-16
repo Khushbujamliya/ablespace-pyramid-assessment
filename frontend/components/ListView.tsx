@@ -1,10 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Task } from "@/lib/tasks";
+import { Task, TaskStatus } from "@/lib/tasks";
 import { STATUS_COLUMNS } from "@/lib/taskStatus";
-import AddTaskInput from "./AddTaskInput";
-import { useRouter } from "next/navigation";
+import TaskModal from "./TaskModal";
+
+function priorityColor(priority: string) {
+    switch (priority) {
+        case "urgent": return "text-danger";
+        case "high": return "text-orange-600";
+        case "medium": return "text-amber-600";
+        case "low": return "text-text-muted";
+        default: return "text-text-muted";
+    }
+}
+
+function formatDate(dateStr?: string) {
+    if (!dateStr) return "-";
+    return new Date(dateStr).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" });
+}
 
 export default function ListView({
     tasks,
@@ -16,23 +30,8 @@ export default function ListView({
     onTaskCreated: () => void;
 }) {
     const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-    const [openStatus, setOpenStatus] = useState<string | null>(null);
-    const router = useRouter();
-
-    function formatDate(dateStr?: string) {
-        if (!dateStr) return "-";
-        return new Date(dateStr).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" });
-    }
-
-    function priorityColor(priority: string) {
-        switch (priority) {
-            case "urgent": return "text-danger";
-            case "high": return "text-orange-600";
-            case "medium": return "text-amber-600";
-            case "low": return "text-text-muted";
-            default: return "text-text-muted";
-        }
-    }
+    const [showCreateFor, setShowCreateFor] = useState<TaskStatus | null>(null);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     return (
         <div className="flex flex-col gap-6">
@@ -68,7 +67,7 @@ export default function ListView({
                                         {group.map((task) => (
                                             <tr
                                                 key={task._id}
-                                                onClick={() => router.push(`/tasks/${task._id}`)}
+                                                onClick={() => setSelectedTask(task)}
                                                 className="border-t border-border hover:bg-surface-muted cursor-pointer"
                                             >
                                                 <td className="px-3 py-2 text-text">{task.title}</td>
@@ -91,18 +90,37 @@ export default function ListView({
                             </div>
                         )}
 
-                        {!isCollapsed && (
-                            <AddTaskInput
-                                projectId={projectId}
-                                status={col.key}
-                                onCreated={onTaskCreated}
-                                open={openStatus === col.key}
-                                onOpenChange={(open) => setOpenStatus(open ? col.key : null)}
-                            />
+                        {!isCollapsed && projectId && (
+                            <button
+                                onClick={() => setShowCreateFor(col.key)}
+                                className="text-sm text-text-muted hover:text-text px-1 py-1"
+                            >
+                                + Add Task
+                            </button>
                         )}
                     </div>
                 );
             })}
+
+            {showCreateFor && (
+                <TaskModal
+                    mode="create"
+                    defaultStatus={showCreateFor}
+                    projectId={projectId}
+                    onClose={() => setShowCreateFor(null)}
+                    onSaved={onTaskCreated}
+                />
+            )}
+
+            {selectedTask && (
+                <TaskModal
+                    mode="edit"
+                    task={selectedTask}
+                    projectId={projectId}
+                    onClose={() => setSelectedTask(null)}
+                    onSaved={onTaskCreated}
+                />
+            )}
         </div>
     );
 }
