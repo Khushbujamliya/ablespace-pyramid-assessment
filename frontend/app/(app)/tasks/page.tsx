@@ -48,9 +48,9 @@ export default function TasksPage() {
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <h1 className="text-lg font-semibold">Tasks</h1>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                     <div className="relative">
                         <span className="absolute left-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -109,7 +109,7 @@ export default function TasksPage() {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search tasks..."
-                            className="border border-border rounded pl-8 pr-3 py-1.5 text-sm w-56 focus:outline-none"
+                            className="border border-border rounded pl-8 pr-3 py-1.5 text-sm w-32 sm:w-56 focus:outline-none"
                         />
                     </div>
 
