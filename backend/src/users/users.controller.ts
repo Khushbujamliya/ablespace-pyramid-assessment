@@ -12,6 +12,11 @@ export class UsersController {
         return this.usersService.findById(req.user.userId);
     }
 
+    @Get()
+    findAll() {
+        return this.usersService.findAll();
+    }
+
     @Patch('me')
     updateMe(@Body() body: { fullName?: string; username?: string; title?: string }, @Req() req: any) {
         return this.usersService.updateMe(req.user.userId, body);

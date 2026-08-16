@@ -53,3 +53,18 @@ select:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--color-primary);
 }
+
+.sidebar-offcanvas {
+  transform: translateX(-100%);
+}
+
+.sidebar-open {
+  transform: translateX(0);
+}
+
+@media (min-width: 640px) {
+  .sidebar-offcanvas,
+  .sidebar-open {
+    transform: none;
+  }
+}

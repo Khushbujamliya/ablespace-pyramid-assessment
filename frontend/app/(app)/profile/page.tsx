@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getMe, updateMe, UserProfile } from "@/lib/users";
 import { ColorMode, getStoredColorMode, applyColorMode, Theme, getStoredTheme, applyTheme } from "@/lib/theme";
+import Avatar from "@/components/Avatar";
+import { IconArrowLeft, IconSearch, IconUser, IconSun, IconCheck, IconPalette, IconPencil } from "@/components/icons";
 
 const COLOR_OPTIONS: { key: ColorMode; hex: string; label: string }[] = [
     { key: "amber", hex: "#D97706", label: "Amber" },
@@ -81,96 +83,114 @@ export default function ProfilePage() {
 
     if (!profile) return <div className="text-text-muted">Profile not found.</div>;
 
+    const navItem = (key: "profile" | "theme" | "color", label: string, icon: React.ReactNode) => (
+        <button
+            onClick={() => setSection(key)}
+            className={`flex items-center gap-2.5 text-left px-3 py-2 rounded-lg text-sm ${section === key ? "bg-surface-muted text-text font-medium" : "text-text-muted hover:bg-surface-muted"}`}
+        >
+            {icon}
+            {label}
+        </button>
+    );
+
     return (
-        <div className="flex gap-8">
-            <div className="w-48 flex-shrink-0">
-                <nav className="flex flex-col gap-1 text-sm">
-                    <button
-                        onClick={() => setSection("profile")}
-                        className={`text-left px-3 py-2 rounded ${section === "profile" ? "bg-primary/10 text-primary font-medium" : "text-text-muted hover:bg-surface-muted"}`}
-                    >
-                        Profile
-                    </button>
-                    <button
-                        onClick={() => setSection("theme")}
-                        className={`text-left px-3 py-2 rounded ${section === "theme" ? "bg-primary/10 text-primary font-medium" : "text-text-muted hover:bg-surface-muted"}`}
-                    >
-                        Theme
-                    </button>
-                    <button
-                        onClick={() => setSection("color")}
-                        className={`text-left px-3 py-2 rounded ${section === "color" ? "bg-primary/10 text-primary font-medium" : "text-text-muted hover:bg-surface-muted"}`}
-                    >
-                        Color
-                    </button>
+        <div className="flex flex-col sm:flex-row gap-8">
+            <div className="w-full sm:w-56 flex-shrink-0">
+                <a href="/dashboard" className="flex items-center gap-2 text-sm text-text mb-6 hover:text-text-muted w-fit">
+                    <IconArrowLeft size={16} />
+                    Back to app
+                </a>
+
+                <div className="relative mb-4">
+                    <IconSearch size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                    <input
+                        placeholder="Search"
+                        className="w-full bg-surface border border-border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none"
+                    />
+                </div>
+
+                <nav className="flex flex-col gap-1">
+                    {navItem("profile", "Profile", <IconUser size={15} />)}
+                    {navItem("theme", "Theme", <IconSun size={15} />)}
+                    {navItem("color", "Color", <IconPalette size={15} />)}
                 </nav>
             </div>
 
-            <div className="flex-1 max-w-lg">
+            <div className="flex-1 max-w-xl">
                 {section === "profile" && (
-                    <div className="flex flex-col gap-6">
-                        <div className="bg-surface border border-border rounded-lg shadow-md p-6 flex flex-col gap-4">
-                            <h2 className="text-lg font-semibold text-text mb-2">Profile</h2>
+                    <div className="flex flex-col gap-8">
+                        <div className="flex items-center gap-4">
+                            <Avatar name={fullName || "Guest"} size={56} />
+                            <h1 className="text-2xl font-semibold text-text">Profile</h1>
+                        </div>
 
-                            <div className="flex items-center justify-between border-b border-border pb-4">
+                        <div className="bg-surface border border-border rounded-lg overflow-hidden">
+                            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
                                 <span className="text-sm text-text">Profile picture</span>
-                                <div className="w-14 h-14 rounded-full bg-primary text-white text-lg font-semibold flex items-center justify-center">
-                                    {fullName ? fullName[0].toUpperCase() : "G"}
-                                </div>
+                                <Avatar name={fullName || "Guest"} size={44} />
                             </div>
 
                             {profile.email && (
-                                <div className="flex items-center justify-between border-b border-border pb-4">
+                                <div className="flex items-center justify-between px-5 py-4 border-b border-border">
                                     <span className="text-sm text-text">Email</span>
-                                    <span className="text-sm text-text-muted">{profile.email}</span>
+                                    <span className="flex items-center gap-2 text-sm text-text-muted">
+                                        {profile.email}
+                                        <button className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-surface-muted text-text-muted">
+                                            <IconPencil size={13} />
+                                        </button>
+                                    </span>
                                 </div>
                             )}
 
-                            <div>
-                                <label className="text-sm text-text mb-1 block">Full name</label>
+                            <div className="flex items-center justify-between px-5 py-4 border-b border-border gap-6">
+                                <span className="text-sm text-text flex-shrink-0">Full name</span>
                                 <input
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
-                                    className="w-full border border-border rounded px-3 py-2 text-sm focus:outline-none"
+                                    className="bg-surface-muted rounded-lg px-3 py-2 text-sm text-right focus:outline-none w-48"
                                 />
                             </div>
 
-                            <div>
-                                <label className="text-sm text-text mb-1 block">Title</label>
-                                <p className="text-xs text-text-muted mb-1">Your job title or role</p>
+                            <div className="flex items-center justify-between px-5 py-4 border-b border-border gap-6">
+                                <div className="flex-shrink-0">
+                                    <div className="text-sm text-text">Title</div>
+                                    <div className="text-xs text-text-muted">Your job title or role</div>
+                                </div>
                                 <input
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    className="w-full border border-border rounded px-3 py-2 text-sm focus:outline-none"
+                                    className="bg-surface-muted rounded-lg px-3 py-2 text-sm text-right focus:outline-none w-48"
                                 />
                             </div>
 
-                            <div>
-                                <label className="text-sm text-text mb-1 block">Username</label>
-                                <p className="text-xs text-text-muted mb-1">One word, like a nickname or first name</p>
+                            <div className="flex items-center justify-between px-5 py-4 gap-6">
+                                <div className="flex-shrink-0">
+                                    <div className="text-sm text-text">Username</div>
+                                    <div className="text-xs text-text-muted">One word, like a nickname or first name</div>
+                                </div>
                                 <input
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="w-full border border-border rounded px-3 py-2 text-sm focus:outline-none"
+                                    className="bg-surface-muted rounded-lg px-3 py-2 text-sm text-right focus:outline-none w-48"
                                 />
                             </div>
-
-                            <button
-                                onClick={handleSave}
-                                disabled={saving}
-                                className="self-start bg-primary hover:bg-primary-hover text-white text-sm px-4 py-2 rounded disabled:opacity-60"
-                            >
-                                {saving ? "Saving..." : "Save Changes"}
-                            </button>
                         </div>
 
+                        <button
+                            onClick={handleSave}
+                            disabled={saving}
+                            className="self-start bg-black hover:bg-black/90 text-white text-sm px-4 py-2 rounded-lg disabled:opacity-60"
+                        >
+                            {saving ? "Saving..." : "Save Changes"}
+                        </button>
+
                         <div>
-                            <h3 className="text-sm font-semibold text-text mb-2">Workspace access</h3>
-                            <div className="bg-surface border border-border rounded-lg shadow-md p-4 flex items-center justify-between">
+                            <h3 className="text-base font-semibold text-text mb-2">Workspace access</h3>
+                            <div className="bg-surface border border-border rounded-lg p-4 flex items-center justify-between">
                                 <span className="text-sm text-text-muted">Remove yourself from the workspace</span>
                                 <button
                                     onClick={handleLeaveWorkspace}
-                                    className="text-sm text-danger border border-danger/30 rounded px-3 py-1.5 hover:bg-danger/10"
+                                    className="text-sm text-danger bg-danger/10 rounded-lg px-3 py-1.5 hover:bg-danger/20"
                                 >
                                     Leave Workspace
                                 </button>
@@ -180,17 +200,20 @@ export default function ProfilePage() {
                 )}
 
                 {section === "theme" && (
-                    <div className="bg-surface border border-border rounded-lg p-6">
-                        <h2 className="text-lg font-semibold text-text mb-4">Theme</h2>
-                        <div className="flex flex-col gap-2">
-                            {(["light", "dark"] as Theme[]).map((t) => (
+                    <div>
+                        <h1 className="text-2xl font-semibold text-text mb-6">Theme</h1>
+                        <div className="bg-surface border border-border rounded-lg overflow-hidden">
+                            {(["light", "dark"] as Theme[]).map((t, i) => (
                                 <button
                                     key={t}
                                     onClick={() => handleThemeSelect(t)}
-                                    className="flex items-center justify-between text-sm text-text px-3 py-2 rounded border border-border hover:bg-surface-muted"
+                                    className={`w-full flex items-center justify-between px-5 py-3 text-sm text-text hover:bg-surface-muted ${i > 0 ? "border-t border-border" : ""}`}
                                 >
-                                    <span className="capitalize">{t}</span>
-                                    {theme === t && <span className="text-primary">✓</span>}
+                                    <span className="flex items-center gap-2 capitalize">
+                                        {t === "light" ? <IconSun size={15} className="text-text-muted" /> : <IconSun size={15} className="text-text-muted" />}
+                                        {t}
+                                    </span>
+                                    {theme === t && <IconCheck size={15} className="text-text" />}
                                 </button>
                             ))}
                         </div>
@@ -198,20 +221,20 @@ export default function ProfilePage() {
                 )}
 
                 {section === "color" && (
-                    <div className="bg-surface border border-border rounded-lg p-6">
-                        <h2 className="text-lg font-semibold text-text mb-4">Color</h2>
-                        <div className="flex flex-col gap-2">
-                            {COLOR_OPTIONS.map((c) => (
+                    <div>
+                        <h1 className="text-2xl font-semibold text-text mb-6">Color</h1>
+                        <div className="bg-surface border border-border rounded-lg overflow-hidden">
+                            {COLOR_OPTIONS.map((c, i) => (
                                 <button
                                     key={c.key}
                                     onClick={() => handleColorSelect(c.key)}
-                                    className="flex items-center justify-between text-sm text-text px-3 py-2 rounded border border-border hover:bg-surface-muted"
+                                    className={`w-full flex items-center justify-between px-5 py-3 text-sm text-text hover:bg-surface-muted ${i > 0 ? "border-t border-border" : ""}`}
                                 >
                                     <span className="flex items-center gap-2">
-                                        <span className="w-3 h-3 rounded" style={{ backgroundColor: c.hex }}></span>
+                                        <span className="w-3.5 h-3.5 rounded-sm" style={{ backgroundColor: c.hex }}></span>
                                         {c.label}
                                     </span>
-                                    {colorMode === c.key && <span className="text-primary">✓</span>}
+                                    {colorMode === c.key && <IconCheck size={15} className="text-primary" />}
                                 </button>
                             ))}
                         </div>

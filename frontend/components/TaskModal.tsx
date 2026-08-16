@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Task, TaskStatus, createTask, updateTask } from "@/lib/tasks";
 import { STATUS_COLUMNS } from "@/lib/taskStatus";
+import { IconX } from "./icons";
 
 export default function TaskModal({
     mode,
@@ -73,7 +74,7 @@ export default function TaskModal({
                                 Open full view
                             </a>
                         )}
-                        <button onClick={onClose} className="text-text-muted text-xl leading-none">x</button>
+                        <button onClick={onClose} className="text-text-muted hover:text-text"><IconX size={18} /></button>
                     </div>
                 </div>
 
@@ -138,7 +139,7 @@ export default function TaskModal({
                     <button
                         onClick={handleSubmit}
                         disabled={saving}
-                        className="bg-primary hover:bg-primary-hover text-white text-sm px-4 py-2 rounded disabled:opacity-60"
+                        className="bg-black hover:bg-black/90 text-white text-sm px-4 py-2 rounded disabled:opacity-60"
                     >
                         {saving ? "Saving..." : mode === "create" ? "Add Task" : "Save Changes"}
                     </button>

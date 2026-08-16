@@ -16,22 +16,7 @@ import { STATUS_COLUMNS } from "@/lib/taskStatus";
 import TaskCard from "./TaskCard";
 import TaskModal from "./TaskModal";
 import { useState } from "react";
-
-const STATUS_BG: Record<string, string> = {
-    backlog: "#F3F4F6",
-    todo: "#EEF2FF",
-    doing: "#FFFBEB",
-    completed: "#F0FDF4",
-    onhold: "#FEF2F2",
-};
-
-const STATUS_COLORS: Record<string, string> = {
-    backlog: "#6B7280",
-    todo: "#4F46E5",
-    doing: "#D97706",
-    completed: "#16A34A",
-    onhold: "#DC2626",
-};
+import { IconGrip, IconMore, IconPlus } from "./icons";
 
 type FieldsVisibility = { priority: boolean; dueDate: boolean; labels: boolean };
 
@@ -76,21 +61,11 @@ function Column({
     return (
         <div
             ref={setNodeRef}
-            style={{
-                borderTopColor: STATUS_COLORS[status] || "#6B7280",
-                borderTopWidth: "3px",
-                backgroundColor: STATUS_BG[status] || "#F3F4F6",
-            }}
-            className="flex-1 min-w-[240px] rounded-lg p-3 border-t"
+            className="flex-1 min-w-[240px] rounded-lg p-3 bg-surface-muted"
         >
-            <div className="flex gap-4 overflow-x-auto pb-4"></div>
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-text flex items-center gap-2">
-                    <span className="text-text-muted text-xs cursor-grab">⋮⋮</span>
-                    <span
-                        className="w-2 h-2 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: STATUS_COLORS[status] || "#6B7280" }}
-                    ></span>
+                    <IconGrip size={14} className="text-text-muted cursor-grab" />
                     {label}
                     <span
                         className="text-xs px-1.5 py-0.5 rounded-full bg-surface text-text-muted"
@@ -102,12 +77,14 @@ function Column({
                     {projectId && (
                         <button
                             onClick={() => setShowCreateModal(true)}
-                            className="w-5 h-5 flex items-center justify-center rounded hover:bg-surface text-sm leading-none"
+                            className="w-5 h-5 flex items-center justify-center rounded hover:bg-surface"
                         >
-                            +
+                            <IconPlus size={13} />
                         </button>
                     )}
-                    <button className="w-5 h-5 flex items-center justify-center rounded hover:bg-surface text-sm leading-none">⋯</button>
+                    <button className="w-5 h-5 flex items-center justify-center rounded hover:bg-surface">
+                        <IconMore size={13} />
+                    </button>
                 </div>
             </div>
             <SortableContext items={columnTasks.map((t) => t._id)} strategy={verticalListSortingStrategy}>

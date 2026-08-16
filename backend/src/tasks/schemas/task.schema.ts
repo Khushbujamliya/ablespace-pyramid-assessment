@@ -60,6 +60,9 @@ export class Task {
 
     @Prop({ type: [String], default: [] })
     teams: string[];
+
+    @Prop({ type: [String], default: [] })
+    resources: string[];
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

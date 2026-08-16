@@ -6,6 +6,7 @@ export type UserProfile = {
     username: string;
     title?: string;
     email?: string;
+    avatar?: string;
     isGuest: boolean;
 };
 
@@ -21,5 +22,11 @@ export async function updateMe(updates: { fullName?: string; username?: string; 
         body: JSON.stringify(updates),
     });
     if (!res.ok) throw new Error("Failed to update profile");
+    return res.json();
+}
+
+export async function getAllUsers(): Promise<UserProfile[]> {
+    const res = await apiFetch("/users");
+    if (!res.ok) throw new Error("Failed to fetch users");
     return res.json();
 }

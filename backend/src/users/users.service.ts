@@ -23,6 +23,10 @@ export class UsersService {
         return this.userModel.findById(id).exec();
     }
 
+    async findAll(): Promise<UserDocument[]> {
+        return this.userModel.find().select('fullName username avatar email').exec();
+    }
+
     async updateMe(userId: string, updates: { fullName?: string; username?: string; title?: string }): Promise<UserDocument | null> {
         return this.userModel.findByIdAndUpdate(userId, updates, { new: true }).exec();
     }

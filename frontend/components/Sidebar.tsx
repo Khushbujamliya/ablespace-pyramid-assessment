@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { ColorMode, getStoredColorMode, applyColorMode, Theme, getStoredTheme, applyTheme } from "@/lib/theme";
 import Logo from "./Logo";
+import Avatar from "./Avatar";
 import { usePathname } from "next/navigation";
+import { IconCheck, IconChevronRight, IconChevronDown, IconMoon, IconSun, IconSettings } from "./icons";
 
 const COLOR_OPTIONS: { key: ColorMode; hex: string; label: string }[] = [
     { key: "amber", hex: "#D97706", label: "Amber" },
@@ -59,7 +61,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
     const inactiveClass = "px-3 py-2 rounded transition-colors flex items-center gap-2 text-text-muted hover:bg-surface-muted hover:text-primary";
 
     return (
-        <aside className={"fixed sm:static inset-y-0 left-0 z-40 w-64 bg-surface border-r border-border flex flex-col p-4 transform transition-transform duration-200 " + (open ? "translate-x-0" : "-translate-x-full sm:translate-x-0")}>
+        <aside className={"fixed sm:static inset-y-0 left-0 z-40 w-64 bg-surface border-r border-border flex flex-col p-4 transition-transform duration-200 overflow-y-auto " + (open ? "sidebar-open" : "sidebar-offcanvas")}>
             <div className="flex items-center gap-2 mb-6 px-1">
                 <Logo size={24} />
                 <span className="font-semibold text-text text-sm">Pyramid</span>
@@ -69,19 +71,15 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                 onClick={() => setMenuOpen(function (prev) { return !prev; })}
                 className="flex items-center gap-2 mb-6 px-1"
             >
-                <div className="w-7 h-7 rounded-full bg-primary text-white text-xs font-semibold flex items-center justify-center">
-                    {username ? username[0].toUpperCase() : "G"}
-                </div>
+                <Avatar name={username || "Guest"} size={28} />
                 <span className="text-sm font-medium text-text">{username || "Guest"}</span>
             </button>
 
             {menuOpen ? (
                 <div className="absolute top-14 left-4 z-10 bg-surface border border-border rounded-lg shadow-lg w-64 overflow-hidden">
                     <div className="flex flex-col items-center text-center px-4 pt-6 pb-4 border-b border-border">
-                        <div className="w-16 h-16 rounded-full bg-primary text-white text-2xl font-semibold flex items-center justify-center mb-3">
-                            {username ? username[0].toUpperCase() : "G"}
-                        </div>
-                        <p className="text-base font-semibold text-text">{username || "Guest"}</p>
+                        <Avatar name={username || "Guest"} size={64} />
+                        <p className="text-base font-semibold text-text mt-3">{username || "Guest"}</p>
                         {email ? <p className="text-sm text-text-muted">{email}</p> : null}
                     </div>
 
@@ -90,20 +88,26 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                             onClick={() => setSubmenu(submenu === "theme" ? null : "theme")}
                             className="w-full flex items-center justify-between text-sm text-text px-2 py-2 rounded hover:bg-surface-muted"
                         >
-                            <span>Change Theme</span>
-                            <span className="text-xs">{submenu === "theme" ? "down" : "right"}</span>
+                            <span className="flex items-center gap-2">
+                                <IconSun size={15} className="text-text-muted" />
+                                <span>Change Theme</span>
+                            </span>
+                            {submenu === "theme" ? <IconChevronDown size={14} className="text-text-muted" /> : <IconChevronRight size={14} className="text-text-muted" />}
                         </button>
                         {submenu === "theme" ? (
                             <div className="pl-4 py-1">
-                                {["light", "dark"].map(function (t) {
+                                {(["light", "dark"] as Theme[]).map(function (t) {
                                     return (
                                         <button
                                             key={t}
-                                            onClick={() => handleThemeSelect(t as Theme)}
+                                            onClick={() => handleThemeSelect(t)}
                                             className="w-full flex items-center justify-between text-sm text-text px-2 py-1.5 rounded hover:bg-surface-muted"
                                         >
-                                            <span className="capitalize">{t}</span>
-                                            {theme === t ? <span className="text-primary text-xs">on</span> : null}
+                                            <span className="flex items-center gap-2 capitalize">
+                                                {t === "light" ? <IconSun size={14} className="text-text-muted" /> : <IconMoon size={14} className="text-text-muted" />}
+                                                {t}
+                                            </span>
+                                            {theme === t ? <IconCheck size={14} className="text-text" /> : null}
                                         </button>
                                     );
                                 })}
@@ -115,10 +119,10 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                             className="w-full flex items-center justify-between text-sm text-text px-2 py-2 rounded hover:bg-surface-muted"
                         >
                             <span className="flex items-center gap-2">
-                                <span className="w-3 h-3 rounded" style={{ backgroundColor: COLOR_OPTIONS.find(function (c) { return c.key === colorMode; })?.hex }}></span>
+                                <span className="w-3.5 h-3.5 rounded-sm" style={{ backgroundColor: COLOR_OPTIONS.find(function (c) { return c.key === colorMode; })?.hex }}></span>
                                 <span>Color Mode</span>
                             </span>
-                            <span className="text-xs">{submenu === "color" ? "down" : "right"}</span>
+                            {submenu === "color" ? <IconChevronDown size={14} className="text-text-muted" /> : <IconChevronRight size={14} className="text-text-muted" />}
                         </button>
                         {submenu === "color" ? (
                             <div className="pl-4 py-1">
@@ -130,17 +134,20 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                                             className="w-full flex items-center justify-between text-sm text-text px-2 py-1.5 rounded hover:bg-surface-muted"
                                         >
                                             <span className="flex items-center gap-2">
-                                                <span className="w-3 h-3 rounded" style={{ backgroundColor: c.hex }}></span>
+                                                <span className="w-3.5 h-3.5 rounded-sm" style={{ backgroundColor: c.hex }}></span>
                                                 <span>{c.label}</span>
                                             </span>
-                                            {colorMode === c.key ? <span className="text-primary text-xs">on</span> : null}
+                                            {colorMode === c.key ? <IconCheck size={14} className="text-primary" /> : null}
                                         </button>
                                     );
                                 })}
                             </div>
                         ) : null}
 
-                        <a href="/profile" onClick={closeMenu} className="w-full flex items-center gap-2 text-sm text-text px-2 py-2 rounded hover:bg-surface-muted">Settings</a>
+                        <a href="/profile" onClick={closeMenu} className="w-full flex items-center gap-2 text-sm text-text px-2 py-2 rounded hover:bg-surface-muted">
+                            <IconSettings size={15} className="text-text-muted" />
+                            Settings
+                        </a>
                     </div>
                 </div>
             ) : null}

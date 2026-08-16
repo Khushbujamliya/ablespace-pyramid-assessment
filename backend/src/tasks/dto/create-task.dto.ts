@@ -28,6 +28,14 @@ export class CreateTaskDto {
     dueDate?: string;
 
     @IsOptional()
+    @IsDateString()
+    startDate?: string;
+
+    @IsOptional()
+    @IsDateString()
+    endDate?: string;
+
+    @IsOptional()
     @IsMongoId()
     projectId?: string;
 
@@ -43,5 +51,10 @@ export class CreateTaskDto {
     @IsOptional()
     @IsArray()
     @IsString({ each: true })
-    teams?: string[]; s
+    teams?: string[];
+
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    resources?: string[];
 }

@@ -1,18 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import { getProjects, createProject, deleteProject, updateProject, Project } from "@/lib/projects";
-
-function priorityColor(priority?: string) {
-    switch (priority) {
-        case "urgent": return "text-danger";
-        case "high": return "text-orange-600";
-        case "medium": return "text-amber-600";
-        case "low": return "text-text-muted";
-        default: return "text-text-muted";
-    }
-}
+import Avatar from "@/components/Avatar";
+import PriorityMenu, { PriorityBadge } from "@/components/PriorityMenu";
+import { IconFilter, IconMore, IconPencil, IconPlus, IconSearch, IconTrash } from "@/components/icons";
 
 export default function ProjectsPage() {
     const router = useRouter();
@@ -25,6 +19,17 @@ export default function ProjectsPage() {
     const [priorityFilter, setPriorityFilter] = useState<string>("all");
     const [showFilterMenu, setShowFilterMenu] = useState(false);
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+    const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!openMenuId) return;
+        function handleClickOutside(e: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpenMenuId(null);
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [openMenuId]);
 
     const filteredProjects = projects.filter((p) => {
         const matchesSearch = !search.trim() || p.name.toLowerCase().includes(search.toLowerCase());
@@ -85,10 +90,7 @@ export default function ProjectsPage() {
                 <div className="flex items-center gap-2 flex-wrap">
                     <div className="relative">
                         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="11" cy="11" r="8" />
-                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                            </svg>
+                            <IconSearch size={14} />
                         </span>
                         <input
                             value={search}
@@ -98,38 +100,25 @@ export default function ProjectsPage() {
                         />
                     </div>
 
-                    <div className="relative">
-                        <button
-                            onClick={() => setShowFilterMenu((prev) => !prev)}
-                            className="border border-border rounded px-2.5 py-1.5 text-sm text-text-muted"
-                        >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                            </svg>
-                        </button>
-                        {showFilterMenu && (
-                            <div className="absolute right-0 top-full mt-1 bg-surface border border-border rounded-lg shadow-lg p-2 w-40 z-10">
-                                {["all", "no-priority", "low", "medium", "high", "urgent"].map((p) => (
-                                    <button
-                                        key={p}
-                                        onClick={() => { setPriorityFilter(p); setShowFilterMenu(false); }}
-                                        className="w-full text-left text-sm text-text px-2 py-1.5 rounded hover:bg-surface-muted"
-                                    >
-                                        {p === "all" ? "All Priorities" : p.charAt(0).toUpperCase() + p.slice(1)}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    <PriorityMenu
+                        value={priorityFilter === "all" ? undefined : priorityFilter}
+                        allowAll
+                        open={showFilterMenu}
+                        onOpenChange={setShowFilterMenu}
+                        onSelect={(p) => setPriorityFilter(p)}
+                        align="right"
+                        trigger={
+                            <button className="border border-border rounded px-2.5 py-1.5 text-sm text-text-muted flex items-center gap-1">
+                                <IconFilter size={14} />
+                            </button>
+                        }
+                    />
 
                     <button
                         onClick={() => setShowCreate(true)}
-                        className="bg-primary hover:bg-primary-hover text-white text-sm px-4 py-1.5 rounded flex items-center gap-1.5"
+                        className="bg-black hover:bg-black/90 text-white text-sm px-4 py-1.5 rounded flex items-center gap-1.5"
                     >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <line x1="12" y1="5" x2="12" y2="19" />
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
+                        <IconPlus size={14} />
                         Add Project
                     </button>
                 </div>
@@ -140,15 +129,15 @@ export default function ProjectsPage() {
             )}
 
             {filteredProjects.length > 0 && (
-                <div className="border border-border rounded-lg shadow-md overflow-visible">
-                    <table className="w-full text-sm">
+                <div className="border border-border rounded-lg shadow-md overflow-x-auto">
+                    <table className="w-full text-sm min-w-160">
                         <thead>
                             <tr className="bg-surface border-b border-border text-text-muted text-left">
-                                <th className="px-3 py-2 font-medium">Project</th>
-                                <th className="px-3 py-2 font-medium">Priority</th>
-                                <th className="px-3 py-2 font-medium">Lead</th>
-                                <th className="px-3 py-2 font-medium">Due Date</th>
-                                <th className="px-3 py-2 font-medium w-16">Actions</th>
+                                <th className="px-3 py-2 font-medium whitespace-nowrap">Project</th>
+                                <th className="px-3 py-2 font-medium whitespace-nowrap">Priority</th>
+                                <th className="px-3 py-2 font-medium whitespace-nowrap">Lead</th>
+                                <th className="px-3 py-2 font-medium whitespace-nowrap">Due Date</th>
+                                <th className="px-3 py-2 font-medium w-16 whitespace-nowrap">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -158,59 +147,59 @@ export default function ProjectsPage() {
                                     onClick={() => router.push(`/projects/${project._id}`)}
                                     className="bg-surface border-t border-border hover:bg-surface-muted cursor-pointer transition-colors"
                                 >
-                                    <td className="px-3 py-2 text-text">{project.name}</td>
+                                    <td className="px-3 py-2 text-text whitespace-nowrap">{project.name}</td>
                                     <td className="px-3 py-2">
-                                        {project.priority ? (
-                                            <span className={`inline-flex items-center gap-1.5 ${priorityColor(project.priority)}`}>
-                                                <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                                                {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
-                                            </span>
-                                        ) : (
-                                            <span className="text-text-muted">-</span>
-                                        )}
+                                        <PriorityBadge priority={project.priority} />
                                     </td>
-                                    <td className="px-3 py-2 text-text-muted" onClick={(e) => e.stopPropagation()}>
+                                    <td className="px-3 py-2 text-text-muted whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                                         {project.lead?.fullName || project.lead?.username ? (
                                             <span className="inline-flex items-center gap-1.5">
-                                                <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] font-semibold flex items-center justify-center">
-                                                    {(project.lead.fullName || project.lead.username || "?")[0].toUpperCase()}
-                                                </span>
+                                                <Avatar name={project.lead.fullName || project.lead.username} size={22} />
                                                 {project.lead.fullName || project.lead.username}
                                             </span>
                                         ) : (
                                             <button
                                                 onClick={() => handleAssignLead(project._id)}
-                                                className="w-6 h-6 rounded-full border border-dashed border-border flex items-center justify-center text-xs hover:border-primary hover:text-primary"
+                                                className="w-6 h-6 rounded-full border border-dashed border-border flex items-center justify-center text-text-muted hover:border-primary hover:text-primary"
                                             >
-                                                +
+                                                <IconPlus size={12} />
                                             </button>
                                         )}
                                     </td>
-                                    <td className="px-3 py-2 text-text-muted">
+                                    <td className="px-3 py-2 text-text-muted whitespace-nowrap">
                                         {project.dueDate ? new Date(project.dueDate).toLocaleDateString("en-US", { day: "2-digit", month: "short" }) : "-"}
                                     </td>
                                     <td className="px-3 py-2 relative" onClick={(e) => e.stopPropagation()}>
                                         <button
-                                            onClick={() => setOpenMenuId(openMenuId === project._id ? null : project._id)}
-                                            className="text-text-muted hover:bg-surface-muted rounded px-1"
+                                            onClick={(e) => {
+                                                const rect = e.currentTarget.getBoundingClientRect();
+                                                setMenuPos({ top: rect.bottom + 4, left: rect.right - 128 });
+                                                setOpenMenuId(openMenuId === project._id ? null : project._id);
+                                            }}
+                                            className="text-text-muted hover:bg-surface-muted rounded p-1"
                                         >
-                                            ⋯
+                                            <IconMore size={14} />
                                         </button>
-                                        {openMenuId === project._id && (
-                                            <div className="absolute right-2 top-8 z-20 bg-surface border border-border rounded-lg shadow-lg w-32 overflow-hidden">
+                                        {openMenuId === project._id && createPortal(
+                                            <div
+                                                ref={menuRef}
+                                                style={{ position: "fixed", top: menuPos.top, left: menuPos.left }}
+                                                className="z-50 bg-surface border border-border rounded-lg shadow-lg w-32 overflow-hidden"
+                                            >
                                                 <button
                                                     onClick={() => { router.push(`/projects/${project._id}`); setOpenMenuId(null); }}
-                                                    className="w-full text-left text-sm text-text px-3 py-2 hover:bg-surface-muted"
+                                                    className="w-full text-left text-sm text-text px-3 py-2 hover:bg-surface-muted flex items-center gap-2"
                                                 >
-                                                    ✏️ Edit
+                                                    <IconPencil size={13} /> Edit
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteProject(project._id)}
-                                                    className="w-full text-left text-sm text-danger px-3 py-2 hover:bg-danger/10"
+                                                    className="w-full text-left text-sm text-danger px-3 py-2 hover:bg-danger/10 flex items-center gap-2"
                                                 >
-                                                    🗑️ Delete
+                                                    <IconTrash size={13} /> Delete
                                                 </button>
-                                            </div>
+                                            </div>,
+                                            document.body
                                         )}
                                     </td>
                                 </tr>
@@ -239,7 +228,7 @@ export default function ProjectsPage() {
                             <button
                                 onClick={handleCreate}
                                 disabled={saving}
-                                className="bg-primary hover:bg-primary-hover text-white text-sm px-4 py-2 rounded disabled:opacity-60"
+                                className="bg-black hover:bg-black/90 text-white text-sm px-4 py-2 rounded disabled:opacity-60"
                             >
                                 {saving ? "Adding..." : "Add Project"}
                             </button>

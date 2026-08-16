@@ -2,6 +2,8 @@ import { apiFetch } from "./api";
 
 export type TaskStatus = "backlog" | "todo" | "doing" | "completed" | "onhold";
 
+export type TaskUser = { _id: string; fullName?: string; username?: string; avatar?: string; title?: string };
+
 export type Task = {
     _id: string;
     title: string;
@@ -10,9 +12,13 @@ export type Task = {
     priority?: string;
     labels?: string[];
     teams?: string[];
+    resources?: string[];
     projectId?: string;
     dueDate?: string;
-    reporter?: { fullName?: string; username?: string };
+    startDate?: string;
+    endDate?: string;
+    members?: TaskUser[];
+    reporter?: TaskUser;
 };
 
 export async function getProjectTasks(projectId: string): Promise<Task[]> {
@@ -31,6 +37,15 @@ export async function updateTaskStatus(taskId: string, status: TaskStatus) {
 }
 
 export async function updateTask(taskId: string, updates: Partial<Task>) {
+    const res = await apiFetch(`/tasks/${taskId}`, {
+        method: "PATCH",
+        body: JSON.stringify(updates),
+    });
+    if (!res.ok) throw new Error("Failed to update task");
+    return res.json();
+}
+
+export async function updateTaskRaw(taskId: string, updates: Record<string, unknown>) {
     const res = await apiFetch(`/tasks/${taskId}`, {
         method: "PATCH",
         body: JSON.stringify(updates),
