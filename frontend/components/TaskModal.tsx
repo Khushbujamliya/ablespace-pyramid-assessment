@@ -67,7 +67,14 @@ export default function TaskModal({
                     <h2 className="text-lg font-semibold text-text">
                         {mode === "create" ? "Add Task" : "Edit Task"}
                     </h2>
-                    <button onClick={onClose} className="text-text-muted text-xl leading-none">×</button>
+                    <div className="flex items-center gap-3">
+                        {mode === "edit" && task && (
+                            <a href={`/tasks/${task._id}`} className="text-xs text-primary hover:underline">
+                                Open full view
+                            </a>
+                        )}
+                        <button onClick={onClose} className="text-text-muted text-xl leading-none">x</button>
+                    </div>
                 </div>
 
                 <label className="text-sm text-text mb-1 block">Title *</label>

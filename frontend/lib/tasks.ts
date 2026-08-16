@@ -9,6 +9,7 @@ export type Task = {
     status: TaskStatus;
     priority?: string;
     labels?: string[];
+    teams?: string[];
     projectId?: string;
     dueDate?: string;
 };
@@ -52,5 +53,19 @@ export async function getTask(taskId: string): Promise<Task> {
 export async function getAllTasks(): Promise<Task[]> {
     const res = await apiFetch(`/tasks`);
     if (!res.ok) throw new Error("Failed to fetch tasks");
+    return res.json();
+}
+export async function getSubtasks(taskId: string): Promise<Task[]> {
+    const res = await apiFetch(`/tasks/${taskId}/subtasks`);
+    if (!res.ok) throw new Error("Failed to fetch subtasks");
+    return res.json();
+}
+
+export async function createSubtask(title: string, parentTaskId: string, projectId?: string) {
+    const res = await apiFetch(`/tasks`, {
+        method: "POST",
+        body: JSON.stringify({ title, status: "todo", parentTaskId, projectId }),
+    });
+    if (!res.ok) throw new Error("Failed to create subtask");
     return res.json();
 }

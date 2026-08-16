@@ -57,6 +57,9 @@ export class Task {
 
     @Prop({ type: Types.ObjectId, ref: 'Task', required: false })
     parentTaskId?: Types.ObjectId;
+
+    @Prop({ type: [String], default: [] })
+    teams: string[];
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

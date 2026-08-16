@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getTask, updateTask, Task, TaskStatus } from "@/lib/tasks";
+import { getTask, updateTask, getSubtasks, createSubtask, Task, TaskStatus } from "@/lib/tasks";
+import { getComments, createComment, Comment } from "@/lib/comments";
 import { STATUS_COLUMNS } from "@/lib/taskStatus";
 
 export default function TaskDetailPage() {
@@ -13,6 +14,12 @@ export default function TaskDetailPage() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
 
+    const [subtasks, setSubtasks] = useState<Task[]>([]);
+    const [newSubtask, setNewSubtask] = useState("");
+
+    const [comments, setComments] = useState<Comment[]>([]);
+    const [newComment, setNewComment] = useState("");
+
     useEffect(() => {
         getTask(taskId)
             .then((t) => {
@@ -21,6 +28,8 @@ export default function TaskDetailPage() {
                 setDescription(t.description ?? "");
             })
             .finally(() => setLoading(false));
+        getSubtasks(taskId).then(setSubtasks);
+        getComments(taskId).then(setComments);
     }, [taskId]);
 
     async function handleFieldSave(updates: Partial<Task>) {
@@ -28,6 +37,20 @@ export default function TaskDetailPage() {
         const updated = { ...task, ...updates };
         setTask(updated);
         await updateTask(task._id, updates);
+    }
+
+    async function handleAddSubtask() {
+        if (!newSubtask.trim() || !task) return;
+        await createSubtask(newSubtask.trim(), task._id, task.projectId);
+        setNewSubtask("");
+        getSubtasks(taskId).then(setSubtasks);
+    }
+
+    async function handlePostComment() {
+        if (!newComment.trim()) return;
+        await createComment(taskId, newComment.trim());
+        setNewComment("");
+        getComments(taskId).then(setComments);
     }
 
     if (loading) {
@@ -65,7 +88,7 @@ export default function TaskDetailPage() {
                 />
 
                 {task.labels && task.labels.length > 0 && (
-                    <div className="mb-6">
+                    <div className="mb-4">
                         <div className="text-xs text-text-muted mb-2">Labels</div>
                         <div className="flex flex-wrap gap-1">
                             {task.labels.map((label) => (
@@ -76,6 +99,93 @@ export default function TaskDetailPage() {
                         </div>
                     </div>
                 )}
+
+                {task.teams && task.teams.length > 0 && (
+                    <div className="mb-6">
+                        <div className="text-xs text-text-muted mb-2">Teams</div>
+                        <div className="flex flex-wrap gap-1">
+                            {task.teams.map((team) => (
+                                <span key={team} className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">
+                                    {team}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <div className="mb-6">
+                    <div className="text-sm font-semibold text-text mb-2">Subtasks</div>
+                    {subtasks.length > 0 && (
+                        <div className="border border-border rounded-lg overflow-hidden mb-2">
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="bg-surface-muted text-text-muted text-left">
+                                        <th className="px-3 py-2 font-medium">Task</th>
+                                        <th className="px-3 py-2 font-medium">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {subtasks.map((st) => (
+                                        <tr key={st._id} className="border-t border-border">
+                                            <td className="px-3 py-2 text-text">{st.title}</td>
+                                            <td className="px-3 py-2 text-text-muted">
+                                                {STATUS_COLUMNS.find((c) => c.key === st.status)?.label}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                    <div className="flex gap-2">
+                        <input
+                            value={newSubtask}
+                            onChange={(e) => setNewSubtask(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleAddSubtask()}
+                            placeholder="Add subtask..."
+                            className="flex-1 border border-border rounded px-3 py-1.5 text-sm focus:outline-none"
+                        />
+                        <button
+                            onClick={handleAddSubtask}
+                            className="text-sm bg-primary text-white rounded px-3 py-1.5"
+                        >
+                            Add
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <div className="text-sm font-semibold text-text mb-2">Comments</div>
+                    <div className="flex flex-col gap-3 mb-3">
+                        {comments.map((c) => (
+                            <div key={c._id} className="text-sm">
+                                <span className="font-medium text-text">{c.author?.fullName || "User"}</span>
+                                <span className="text-xs text-text-muted ml-2">
+                                    {new Date(c.createdAt).toLocaleDateString()}
+                                </span>
+                                <p className="text-text-muted mt-0.5">{c.text}</p>
+                            </div>
+                        ))}
+                        {comments.length === 0 && (
+                            <p className="text-sm text-text-muted">No comments yet.</p>
+                        )}
+                    </div>
+                    <div className="flex gap-2">
+                        <input
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handlePostComment()}
+                            placeholder="Add a comment..."
+                            className="flex-1 border border-border rounded px-3 py-1.5 text-sm focus:outline-none"
+                        />
+                        <button
+                            onClick={handlePostComment}
+                            className="text-sm bg-primary text-white rounded px-3 py-1.5"
+                        >
+                            Post
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div className="w-full sm:w-64 border-t sm:border-t-0 sm:border-l border-border pt-6 sm:pt-0 sm:pl-6">

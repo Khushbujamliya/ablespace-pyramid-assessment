@@ -39,4 +39,9 @@ export class CreateTaskDto {
     @IsOptional()
     @IsMongoId()
     parentTaskId?: string;
+
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    teams?: string[]; s
 }
