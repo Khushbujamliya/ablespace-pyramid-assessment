@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Task, deleteTask } from "@/lib/tasks";
+import { createPortal } from "react-dom";
 
 function formatDate(dateStr?: string) {
     if (!dateStr) return null;
@@ -39,6 +40,7 @@ export default function TaskCard({
     const formattedDate = formatDate(task.dueDate);
     const assigneeName = task.reporter?.fullName || task.reporter?.username;
     const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
+    const menuRef = useRef<HTMLDivElement>(null);
 
     async function handleDelete(e: React.MouseEvent) {
         e.stopPropagation();
@@ -59,6 +61,17 @@ export default function TaskCard({
         setMenuOpen(false);
         onClick?.();
     }
+
+    useEffect(() => {
+        if (!menuOpen) return;
+        function handleClickOutside(e: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                setMenuOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [menuOpen]);
 
     return (
         <div
@@ -87,8 +100,7 @@ export default function TaskCard({
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            setMenuPos({ top: rect.bottom + 4, left: rect.right - 128 });
+                            setMenuPos({ top: e.clientY + 4, left: e.clientX - 100 });
                             setMenuOpen((prev) => !prev);
                         }}
                         className="text-text-muted text-sm px-1 hover:bg-surface-muted rounded"
@@ -98,8 +110,9 @@ export default function TaskCard({
                 </div>
             </div>
 
-            {menuOpen && (
+            {menuOpen && createPortal(
                 <div
+                    ref={menuRef}
                     onClick={(e) => e.stopPropagation()}
                     style={{ position: "fixed", top: menuPos.top, left: menuPos.left }}
                     className="z-50 bg-surface border border-border rounded-lg shadow-lg w-32 overflow-hidden"
@@ -117,7 +130,8 @@ export default function TaskCard({
                     >
                         🗑️ {deleting ? "Deleting..." : "Delete"}
                     </button>
-                </div>
+                </div>,
+                document.body
             )}
 
             <div className="flex flex-wrap gap-1">
