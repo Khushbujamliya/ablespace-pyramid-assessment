@@ -20,6 +20,7 @@ export default function TaskCard({
     showLabels?: boolean;
 }) {
     const formattedDate = formatDate(task.dueDate);
+    const assigneeName = task.reporter?.fullName || task.reporter?.username;
 
     return (
         <div
@@ -27,7 +28,17 @@ export default function TaskCard({
             className="bg-surface border border-border rounded-lg p-3 shadow cursor-pointer hover:border-primary/40"
         >
             <div className="flex items-start justify-between gap-2 mb-2">
-                <p className="text-sm font-medium text-text">{task.title}</p>
+                <div className="flex items-center gap-2">
+                    {assigneeName && (
+                        <div
+                            className="w-5 h-5 rounded-full bg-primary text-white text-[10px] font-semibold flex items-center justify-center flex-shrink-0"
+                            title={assigneeName}
+                        >
+                            {assigneeName[0].toUpperCase()}
+                        </div>
+                    )}
+                    <p className="text-sm font-medium text-text">{task.title}</p>
+                </div>
                 {showDueDate && formattedDate && (
                     <span className="text-xs px-2 py-0.5 rounded bg-danger/10 text-danger whitespace-nowrap">
                         {formattedDate}

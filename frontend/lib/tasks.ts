@@ -12,6 +12,7 @@ export type Task = {
     teams?: string[];
     projectId?: string;
     dueDate?: string;
+    reporter?: { fullName?: string; username?: string };
 };
 
 export async function getProjectTasks(projectId: string): Promise<Task[]> {
