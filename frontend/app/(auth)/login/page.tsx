@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getToken } from "@/lib/api";
+import Logo from "@/components/Logo";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -40,9 +41,7 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-surface-muted gap-4">
             <div className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-black rounded-md flex items-center justify-center">
-                    <div className="w-2.5 h-2.5 bg-white" style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }} />
-                </div>
+                <Logo size={28} />
                 <span className="font-semibold text-text">Pyramid</span>
             </div>
             <div className="bg-surface border border-border rounded-lg p-8 w-full max-w-sm">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getProjects, Project } from "@/lib/projects";
+import { getProjects, createProject, Project } from "@/lib/projects";
 
 function priorityColor(priority?: string) {
     switch (priority) {
@@ -18,10 +18,30 @@ export default function ProjectsPage() {
     const router = useRouter();
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showCreate, setShowCreate] = useState(false);
+    const [newName, setNewName] = useState("");
+    const [saving, setSaving] = useState(false);
+
+    function refreshProjects() {
+        getProjects().then(setProjects);
+    }
 
     useEffect(() => {
         getProjects().then(setProjects).finally(() => setLoading(false));
     }, []);
+
+    async function handleCreate() {
+        if (!newName.trim()) return;
+        setSaving(true);
+        try {
+            await createProject(newName.trim());
+            setNewName("");
+            setShowCreate(false);
+            refreshProjects();
+        } finally {
+            setSaving(false);
+        }
+    }
 
     if (loading) {
         return (
@@ -34,7 +54,15 @@ export default function ProjectsPage() {
 
     return (
         <div>
-            <h1 className="text-lg font-semibold mb-4">Projects</h1>
+            <div className="flex items-center justify-between mb-4">
+                <h1 className="text-lg font-semibold">Projects</h1>
+                <button
+                    onClick={() => setShowCreate(true)}
+                    className="bg-primary hover:bg-primary-hover text-white text-sm px-3 py-1.5 rounded"
+                >
+                    + Add Project
+                </button>
+            </div>
 
             {projects.length === 0 && (
                 <p className="text-sm text-text-muted">No projects yet.</p>
@@ -73,6 +101,34 @@ export default function ProjectsPage() {
                             ))}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {showCreate && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setShowCreate(false)}>
+                    <div className="bg-surface rounded-lg p-6 w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="text-lg font-semibold text-text mb-4">Add Project</h2>
+                        <input
+                            autoFocus
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+                            placeholder="Project name"
+                            className="w-full border border-border rounded px-3 py-2 text-sm mb-4 focus:outline-none"
+                        />
+                        <div className="flex justify-end gap-2">
+                            <button onClick={() => setShowCreate(false)} className="text-sm text-text-muted px-4 py-2">
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleCreate}
+                                disabled={saving}
+                                className="bg-primary hover:bg-primary-hover text-white text-sm px-4 py-2 rounded disabled:opacity-60"
+                            >
+                                {saving ? "Adding..." : "Add Project"}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

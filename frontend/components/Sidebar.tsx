@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { ColorMode, getStoredColorMode, applyColorMode, Theme, getStoredTheme, applyTheme } from "@/lib/theme";
+import Logo from "./Logo";
 
-const COLOR_OPTIONS: { key: ColorMode; hex: string }[] = [
-    { key: "amber", hex: "#D97706" },
-    { key: "blue", hex: "#4F46E5" },
-    { key: "pink", hex: "#DB2777" },
-    { key: "rose", hex: "#E11D48" },
-    { key: "emerald", hex: "#059669" },
-    { key: "black", hex: "#171717" },
+const COLOR_OPTIONS: { key: ColorMode; hex: string; label: string }[] = [
+    { key: "amber", hex: "#D97706", label: "Amber" },
+    { key: "blue", hex: "#4F46E5", label: "Blue" },
+    { key: "pink", hex: "#DB2777", label: "Pink" },
+    { key: "rose", hex: "#E11D48", label: "Rose" },
+    { key: "emerald", hex: "#059669", label: "Emerald" },
+    { key: "black", hex: "#171717", label: "Black" },
 ];
 
 export default function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -17,6 +18,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
     const [colorMode, setColorMode] = useState<ColorMode>("blue");
     const [theme, setTheme] = useState<Theme>("light");
     const [menuOpen, setMenuOpen] = useState(false);
+    const [submenu, setSubmenu] = useState<"theme" | "color" | null>(null);
 
     useEffect(() => {
         const stored = localStorage.getItem("user");
@@ -37,10 +39,14 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
         applyColorMode(mode);
     }
 
-    function toggleTheme() {
-        const next: Theme = theme === "light" ? "dark" : "light";
-        setTheme(next);
-        applyTheme(next);
+    function handleThemeSelect(t: Theme) {
+        setTheme(t);
+        applyTheme(t);
+    }
+
+    function closeMenu() {
+        setMenuOpen(false);
+        setSubmenu(null);
     }
 
     return (
@@ -48,6 +54,11 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
             className={`fixed sm:static inset-y-0 left-0 z-40 w-64 bg-surface border-r border-border flex flex-col p-4 transform transition-transform duration-200 ${open ? "translate-x-0" : "-translate-x-full sm:translate-x-0"
                 }`}
         >
+            <div className="flex items-center gap-2 mb-6 px-1">
+                <Logo size={24} />
+                <span className="font-semibold text-text text-sm">Pyramid</span>
+            </div>
+
             <button
                 onClick={() => setMenuOpen((prev) => !prev)}
                 className="flex items-center gap-2 mb-6 px-1"
@@ -59,31 +70,58 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
             </button>
 
             {menuOpen && (
-                <div className="absolute top-14 left-4 z-10 bg-surface border border-border rounded-lg shadow-lg p-3 w-56">
-                    <a href="/profile" className="block text-sm text-text px-2 py-1.5 rounded hover:bg-surface-muted mb-1">
-                        Profile
-                    </a>
-                    <button
-                        onClick={toggleTheme}
-                        className="w-full text-left text-sm text-text px-2 py-1.5 rounded hover:bg-surface-muted mb-2"
-                    >
-                        {theme === "light" ? "🌙 Switch to Dark" : "☀️ Switch to Light"}
-                    </button>
-                    <div className="text-xs text-text-muted px-2 mb-1">Color Mode</div>
-                    <div className="flex gap-2 px-2">
-                        {COLOR_OPTIONS.map((c) => (
-                            <button
-                                key={c.key}
-                                onClick={() => handleColorSelect(c.key)}
-                                className="w-5 h-5 rounded-full"
-                                style={{
-                                    backgroundColor: c.hex,
-                                    outline: colorMode === c.key ? "2px solid " + c.hex : "none",
-                                    outlineOffset: "2px",
-                                }}
-                                aria-label={c.key}
-                            />
-                        ))}
+                <div className="absolute top-14 left-4 z-10 bg-surface border border-border rounded-lg shadow-lg w-56 overflow-hidden">
+                    <div className="p-3">
+                        <a href="/profile" onClick={closeMenu} className="block text-sm text-text px-2 py-1.5 rounded hover:bg-surface-muted mb-1">
+                            Settings
+                        </a>
+
+                        <button
+                            onClick={() => setSubmenu(submenu === "theme" ? null : "theme")}
+                            className="w-full flex items-center justify-between text-sm text-text px-2 py-1.5 rounded hover:bg-surface-muted"
+                        >
+                            <span>Change Theme</span>
+                            <span className="text-xs">{submenu === "theme" ? "⌄" : "›"}</span>
+                        </button>
+                        {submenu === "theme" && (
+                            <div className="pl-2 py-1">
+                                {(["light", "dark"] as Theme[]).map((t) => (
+                                    <button
+                                        key={t}
+                                        onClick={() => handleThemeSelect(t)}
+                                        className="w-full flex items-center justify-between text-sm text-text px-2 py-1.5 rounded hover:bg-surface-muted"
+                                    >
+                                        <span className="capitalize">{t}</span>
+                                        {theme === t && <span className="text-primary text-xs">✓</span>}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        <button
+                            onClick={() => setSubmenu(submenu === "color" ? null : "color")}
+                            className="w-full flex items-center justify-between text-sm text-text px-2 py-1.5 rounded hover:bg-surface-muted"
+                        >
+                            <span>Color Mode</span>
+                            <span className="text-xs">{submenu === "color" ? "⌄" : "›"}</span>
+                        </button>
+                        {submenu === "color" && (
+                            <div className="pl-2 py-1">
+                                {COLOR_OPTIONS.map((c) => (
+                                    <button
+                                        key={c.key}
+                                        onClick={() => handleColorSelect(c.key)}
+                                        className="w-full flex items-center justify-between text-sm text-text px-2 py-1.5 rounded hover:bg-surface-muted"
+                                    >
+                                        <span className="flex items-center gap-2">
+                                            <span className="w-3 h-3 rounded" style={{ backgroundColor: c.hex }}></span>
+                                            {c.label}
+                                        </span>
+                                        {colorMode === c.key && <span className="text-primary text-xs">✓</span>}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
