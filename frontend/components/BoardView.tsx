@@ -17,12 +17,20 @@ import TaskCard from "./TaskCard";
 import TaskModal from "./TaskModal";
 import { useState } from "react";
 
-function SortableCard({ task, onClick }: { task: Task; onClick: () => void }) {
+type FieldsVisibility = { priority: boolean; dueDate: boolean; labels: boolean };
+
+function SortableCard({ task, onClick, fields }: { task: Task; onClick: () => void; fields: FieldsVisibility }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: task._id });
     const style = { transform: CSS.Transform.toString(transform), transition };
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            <TaskCard task={task} onClick={onClick} />
+            <TaskCard
+                task={task}
+                onClick={onClick}
+                showPriority={fields.priority}
+                showDueDate={fields.dueDate}
+                showLabels={fields.labels}
+            />
         </div>
     );
 }
@@ -34,6 +42,7 @@ function Column({
     projectId,
     onTaskCreated,
     onTaskClick,
+    fields,
 }: {
     status: TaskStatus;
     label: string;
@@ -41,6 +50,7 @@ function Column({
     projectId: string;
     onTaskCreated: () => void;
     onTaskClick: (task: Task) => void;
+    fields: FieldsVisibility;
 }) {
     const { setNodeRef } = useDroppable({ id: status });
     const columnTasks = tasks.filter((t) => t.status === status);
@@ -67,7 +77,7 @@ function Column({
             <SortableContext items={columnTasks.map((t) => t._id)} strategy={verticalListSortingStrategy}>
                 <div className="flex flex-col gap-2 mb-2">
                     {columnTasks.map((task) => (
-                        <SortableCard key={task._id} task={task} onClick={() => onTaskClick(task)} />
+                        <SortableCard key={task._id} task={task} onClick={() => onTaskClick(task)} fields={fields} />
                     ))}
                 </div>
             </SortableContext>
@@ -98,11 +108,13 @@ export default function BoardView({
     onTaskUpdated,
     projectId,
     onTaskCreated,
+    fields = { priority: true, dueDate: true, labels: true },
 }: {
     tasks: Task[];
     onTaskUpdated: (taskId: string, status: TaskStatus) => void;
     projectId: string;
     onTaskCreated: () => void;
+    fields?: FieldsVisibility;
 }) {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
@@ -147,6 +159,7 @@ export default function BoardView({
                         projectId={projectId}
                         onTaskCreated={onTaskCreated}
                         onTaskClick={setSelectedTask}
+                        fields={fields}
                     />
                 ))}
             </div>
