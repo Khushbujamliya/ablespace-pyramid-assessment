@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getTask, updateTask, getSubtasks, createSubtask, Task, TaskStatus } from "@/lib/tasks";
 import { getComments, createComment, Comment } from "@/lib/comments";
 import { STATUS_COLUMNS } from "@/lib/taskStatus";
+import Link from "next/link";
 
 export default function TaskDetailPage() {
     const { taskId } = useParams<{ taskId: string }>();
@@ -67,10 +68,15 @@ export default function TaskDetailPage() {
     return (
         <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
             <div className="flex-1 max-w-2xl">
-                <button onClick={() => router.back()} className="text-sm text-text-muted mb-4">
-                    ← Back
-                </button>
-
+                <div className="flex items-center gap-3 mb-4">
+                    <button onClick={() => router.back()} className="text-sm text-text-muted">
+                        ← Back
+                    </button>
+                    <span className="text-text-muted text-xs">·</span>
+                    <Link href="/dashboard" className="text-sm text-primary hover:underline">
+                        Dashboard
+                    </Link>
+                </div>
                 <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}

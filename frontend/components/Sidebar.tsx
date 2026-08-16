@@ -130,6 +130,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                 Workspace <span className="text-[10px]">▾</span>
             </div>
             <nav className="flex flex-col gap-1 text-sm text-text-muted mb-6">
+                <a href="/dashboard" onClick={onClose} className="px-3 py-2 rounded hover:bg-surface-muted hover:text-primary transition-colors">Dashboard</a>
                 <a href="/tasks" onClick={onClose} className="px-3 py-2 rounded hover:bg-surface-muted hover:text-primary transition-colors">Tasks</a>
                 <a href="/projects" onClick={onClose} className="px-3 py-2 rounded hover:bg-surface-muted hover:text-primary transition-colors">Projects</a>
             </nav>

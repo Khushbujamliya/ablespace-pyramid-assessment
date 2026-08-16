@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { getProjectTasks, Task, TaskStatus } from "@/lib/tasks";
 import ListView from "@/components/ListView";
 import BoardView from "@/components/BoardView";
@@ -35,6 +36,9 @@ export default function ProjectPage() {
 
     return (
         <div>
+            <Link href="/dashboard" className="text-sm text-primary hover:underline mb-3 inline-block">
+                ← Dashboard
+            </Link>
             <div className="flex gap-2 mb-4">
                 <button onClick={() => setView("list")} className={view === "list" ? "font-semibold text-primary" : "text-text-muted"}>
                     List
