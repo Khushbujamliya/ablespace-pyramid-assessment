@@ -29,6 +29,7 @@ export class ProjectsService {
     async update(id: string, dto: UpdateProjectDto) {
         const project = await this.projectModel
             .findByIdAndUpdate(id, dto, { new: true })
+            .populate('lead owner')
             .exec();
         if (!project) throw new NotFoundException('Project not found');
         return project;

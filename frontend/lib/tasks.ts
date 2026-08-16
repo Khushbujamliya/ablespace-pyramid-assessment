@@ -70,3 +70,7 @@ export async function createSubtask(title: string, parentTaskId: string, project
     if (!res.ok) throw new Error("Failed to create subtask");
     return res.json();
 }
+export async function deleteTask(taskId: string): Promise<void> {
+    const res = await apiFetch(`/tasks/${taskId}`, { method: "DELETE" });
+    if (!res.ok) throw new Error("Failed to delete task");
+}

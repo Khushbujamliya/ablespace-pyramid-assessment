@@ -16,4 +16,9 @@ export class CreateProjectDto {
     @IsOptional()
     @IsDateString()
     dueDate?: string;
+
+    @IsOptional()
+    @IsDateString()
+    dueDate?: string;
+
 }

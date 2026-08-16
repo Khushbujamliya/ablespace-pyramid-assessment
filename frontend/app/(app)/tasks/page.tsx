@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { getAllTasks, Task, TaskStatus } from "@/lib/tasks";
 import BoardView from "@/components/BoardView";
+import { getProjects } from "@/lib/projects";
+import TaskModal from "@/components/TaskModal";
 
 export default function TasksPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -11,6 +13,8 @@ export default function TasksPage() {
     const [priorityFilter, setPriorityFilter] = useState<string>("all");
     const [showFieldsMenu, setShowFieldsMenu] = useState(false);
     const [fields, setFields] = useState({ priority: true, dueDate: true, labels: true });
+    const [defaultProjectId, setDefaultProjectId] = useState<string>("");
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     function refreshTasks() {
         getAllTasks().then(setTasks);
@@ -18,6 +22,9 @@ export default function TasksPage() {
 
     useEffect(() => {
         getAllTasks().then(setTasks).finally(() => setLoading(false));
+        getProjects().then((projects) => {
+            if (projects.length > 0) setDefaultProjectId(projects[0]._id);
+        });
     }, []);
 
     function handleTaskUpdated(taskId: string, status: TaskStatus) {
@@ -44,23 +51,35 @@ export default function TasksPage() {
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-lg font-semibold">Tasks</h1>
                 <div className="flex items-center gap-2">
-                    <select
-                        value={priorityFilter}
-                        onChange={(e) => setPriorityFilter(e.target.value)}
-                        className="border border-border rounded px-2 py-1.5 text-sm"
-                    >
-                        <option value="all">All Priorities</option>
-                        <option value="no-priority">No Priority</option>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="urgent">Urgent</option>
-                    </select>
+                    <div className="relative">
+                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                            </svg>
+                        </span>
+                        <select
+                            value={priorityFilter}
+                            onChange={(e) => setPriorityFilter(e.target.value)}
+                            className="border border-border rounded pl-7 pr-2 py-1.5 text-sm appearance-none"
+                        >
+                            <option value="all">All Priorities</option>
+                            <option value="no-priority">No Priority</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+
                     <div className="relative">
                         <button
                             onClick={() => setShowFieldsMenu((prev) => !prev)}
-                            className="border border-border rounded px-3 py-1.5 text-sm text-text"
+                            className="border border-border rounded px-3 py-1.5 text-sm text-text flex items-center gap-1.5"
                         >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="3" y="3" width="7" height="18" rx="1" />
+                                <rect x="14" y="3" width="7" height="18" rx="1" />
+                            </svg>
                             Fields
                         </button>
                         {showFieldsMenu && (
@@ -78,12 +97,32 @@ export default function TasksPage() {
                             </div>
                         )}
                     </div>
-                    <input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search tasks..."
-                        className="border border-border rounded px-3 py-1.5 text-sm w-56 focus:outline-none"
-                    />
+
+                    <div className="relative">
+                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                        </span>
+                        <input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="Search tasks..."
+                            className="border border-border rounded pl-8 pr-3 py-1.5 text-sm w-56 focus:outline-none"
+                        />
+                    </div>
+
+                    <button
+                        onClick={() => setShowCreateModal(true)}
+                        className="bg-primary hover:bg-primary-hover text-white text-sm px-4 py-1.5 rounded flex items-center gap-1.5"
+                    >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Add Task
+                    </button>
                 </div>
             </div>
 
@@ -100,10 +139,20 @@ export default function TasksPage() {
             <BoardView
                 tasks={filteredTasks}
                 onTaskUpdated={handleTaskUpdated}
-                projectId=""
+                projectId={defaultProjectId}
                 onTaskCreated={refreshTasks}
                 fields={fields}
             />
+
+            {showCreateModal && (
+                <TaskModal
+                    mode="create"
+                    defaultStatus="todo"
+                    projectId={defaultProjectId}
+                    onClose={() => setShowCreateModal(false)}
+                    onSaved={refreshTasks}
+                />
+            )}
         </div>
     );
 }

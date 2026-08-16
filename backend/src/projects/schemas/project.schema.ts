@@ -27,6 +27,7 @@ export class Project {
 
     @Prop({ type: Types.ObjectId, ref: 'User', required: true })
     owner: Types.ObjectId;
+
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

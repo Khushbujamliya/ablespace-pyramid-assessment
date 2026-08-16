@@ -17,6 +17,14 @@ import TaskCard from "./TaskCard";
 import TaskModal from "./TaskModal";
 import { useState } from "react";
 
+const STATUS_BG: Record<string, string> = {
+    backlog: "#F3F4F6",
+    todo: "#EEF2FF",
+    doing: "#FFFBEB",
+    completed: "#F0FDF4",
+    onhold: "#FEF2F2",
+};
+
 const STATUS_COLORS: Record<string, string> = {
     backlog: "#6B7280",
     todo: "#4F46E5",
@@ -27,7 +35,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 type FieldsVisibility = { priority: boolean; dueDate: boolean; labels: boolean };
 
-function SortableCard({ task, onClick, fields }: { task: Task; onClick: () => void; fields: FieldsVisibility }) {
+function SortableCard({ task, onClick, onDeleted, fields }: { task: Task; onClick: () => void; onDeleted: () => void; fields: FieldsVisibility }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: task._id });
     const style = { transform: CSS.Transform.toString(transform), transition };
     return (
@@ -35,6 +43,7 @@ function SortableCard({ task, onClick, fields }: { task: Task; onClick: () => vo
             <TaskCard
                 task={task}
                 onClick={onClick}
+                onDeleted={onDeleted}
                 showPriority={fields.priority}
                 showDueDate={fields.dueDate}
                 showLabels={fields.labels}
@@ -67,16 +76,27 @@ function Column({
     return (
         <div
             ref={setNodeRef}
-            style={{ borderTopColor: STATUS_COLORS[status] || "#6B7280", borderTopWidth: "3px" }}
-            className="flex-1 min-w-[240px] bg-surface-muted rounded-lg p-3 border-t"
+            style={{
+                borderTopColor: STATUS_COLORS[status] || "#6B7280",
+                borderTopWidth: "3px",
+                backgroundColor: STATUS_BG[status] || "#F3F4F6",
+            }}
+            className="flex-1 min-w-[240px] rounded-lg p-3 border-t"
         >
+            <div className="flex gap-4 overflow-x-auto pb-4"></div>
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-text-muted flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-text flex items-center gap-2">
+                    <span className="text-text-muted text-xs cursor-grab">⋮⋮</span>
                     <span
                         className="w-2 h-2 rounded-full flex-shrink-0"
                         style={{ backgroundColor: STATUS_COLORS[status] || "#6B7280" }}
                     ></span>
-                    {label} <span className="text-xs">({columnTasks.length})</span>
+                    {label}
+                    <span
+                        className="text-xs px-1.5 py-0.5 rounded-full bg-surface text-text-muted"
+                    >
+                        {columnTasks.length}
+                    </span>
                 </h3>
                 <div className="flex items-center gap-1 text-text-muted">
                     {projectId && (
@@ -102,7 +122,7 @@ function Column({
                         </div>
                     )}
                     {columnTasks.map((task) => (
-                        <SortableCard key={task._id} task={task} onClick={() => onTaskClick(task)} fields={fields} />
+                        <SortableCard key={task._id} task={task} onClick={() => onTaskClick(task)} onDeleted={onTaskCreated} fields={fields} />
                     ))}
                 </div>
             </SortableContext>
