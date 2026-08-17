@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getAllTasks, Task, TaskStatus } from "@/lib/tasks";
 import BoardView from "@/components/BoardView";
 import ListView from "@/components/ListView";
@@ -9,6 +9,7 @@ import TaskModal from "@/components/TaskModal";
 import FieldsMenu, { DEFAULT_FIELDS, FieldsState, ViewMode } from "@/components/FieldsMenu";
 import PriorityMenu from "@/components/PriorityMenu";
 import { IconChevronDown, IconColumns, IconPlus, IconSearch, PRIORITY_LABELS } from "@/components/icons";
+import { useClickOutside } from "@/lib/useClickOutside";
 
 export default function TasksPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -17,6 +18,8 @@ export default function TasksPage() {
     const [priorityFilter, setPriorityFilter] = useState<string>("all");
     const [showPriorityMenu, setShowPriorityMenu] = useState(false);
     const [showFieldsMenu, setShowFieldsMenu] = useState(false);
+    const fieldsMenuRef = useRef<HTMLDivElement>(null);
+    useClickOutside(fieldsMenuRef, () => setShowFieldsMenu(false), showFieldsMenu);
     const [view, setView] = useState<ViewMode>("list");
     const [fields, setFields] = useState<FieldsState>(DEFAULT_FIELDS);
     const [defaultProjectId, setDefaultProjectId] = useState<string>("");
@@ -102,7 +105,7 @@ export default function TasksPage() {
                         }
                     />
 
-                    <div className="relative">
+                    <div className="relative" ref={fieldsMenuRef}>
                         <button
                             onClick={() => setShowFieldsMenu((prev) => !prev)}
                             className="border border-border rounded px-3 py-1.5 text-sm text-text flex items-center gap-1.5"

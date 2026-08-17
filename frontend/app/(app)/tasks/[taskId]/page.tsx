@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { getTask, updateTask, updateTaskRaw, getSubtasks, createSubtask, Task, TaskStatus, TaskUser } from "@/lib/tasks";
 import { getComments, createComment, Comment } from "@/lib/comments";
 import { getTaskActivity, Activity } from "@/lib/activity";
@@ -11,8 +11,8 @@ import Avatar, { AvatarStack } from "@/components/Avatar";
 import PriorityMenu, { PriorityBadge } from "@/components/PriorityMenu";
 import DateRangeField from "@/components/DateRangePicker";
 import {
-    IconArrowLeft, IconEye, IconLock, IconShare, IconMore, IconPanelLeft,
-    IconTag, IconPlus, IconLink, IconChevronDown, IconCheck,
+    IconEye, IconLock, IconShare, IconMore, IconPanelLeft,
+    IconTag, IconPlus, IconLink, IconChevronDown, IconCheck, IconUsers,
     IconPaperclip, IconSend, IconSettings, PriorityIcon,
 } from "@/components/icons";
 
@@ -77,7 +77,7 @@ function MembersMenu({ members, allUsers, onToggle }: { members: TaskUser[]; all
                     <AvatarStack people={members.map((m) => ({ name: m.fullName || m.username, src: m.avatar }))} size={22} />
                 ) : (
                     <span className="text-sm text-text-muted flex items-center gap-1.5">
-                        <IconPlus size={13} /> Add members
+                        <IconUsers size={13} /> Add members
                     </span>
                 )}
             </button>
@@ -149,7 +149,6 @@ function timeAgo(dateStr: string) {
 
 export default function TaskDetailPage() {
     const { taskId } = useParams<{ taskId: string }>();
-    const router = useRouter();
     const [task, setTask] = useState<Task | null>(null);
     const [loading, setLoading] = useState(true);
     const [title, setTitle] = useState("");
@@ -256,10 +255,7 @@ export default function TaskDetailPage() {
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-5">
-                <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm text-text-muted hover:text-text">
-                    <IconArrowLeft size={15} /> Back
-                </button>
+            <div className="flex items-center justify-end mb-5">
                 <div className="flex items-center gap-1 text-text-muted">
                     <button className="w-7 h-7 flex items-center justify-center rounded hover:bg-surface-muted" title="Locked">
                         <IconLock size={15} />
@@ -449,7 +445,9 @@ export default function TaskDetailPage() {
                     <div className="w-full lg:w-72 flex-shrink-0 flex flex-col gap-6">
                         <div className="border border-border rounded-lg p-4">
                             <div className="flex items-center justify-between mb-3">
-                                <span className="text-sm font-semibold text-text">Details</span>
+                                <span className="text-sm font-semibold text-text flex items-center gap-1.5">
+                                    <IconChevronDown size={13} /> Details
+                                </span>
                                 <div className="flex items-center gap-1 text-text-muted">
                                     <button className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-muted"><IconPlus size={13} /></button>
                                     <button className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-muted"><IconSettings size={13} /></button>

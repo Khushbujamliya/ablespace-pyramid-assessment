@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ColorMode, getStoredColorMode, applyColorMode, Theme, getStoredTheme, applyTheme } from "@/lib/theme";
 import Logo from "./Logo";
 import Avatar from "./Avatar";
 import { usePathname } from "next/navigation";
 import { IconCheck, IconChevronRight, IconChevronDown, IconMoon, IconSun, IconSettings } from "./icons";
+import { useClickOutside } from "@/lib/useClickOutside";
 
 const COLOR_OPTIONS: { key: ColorMode; hex: string; label: string }[] = [
     { key: "amber", hex: "#D97706", label: "Amber" },
@@ -24,6 +25,8 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
     const [submenu, setSubmenu] = useState<"theme" | "color" | null>(null);
     const [email, setEmail] = useState<string>("");
     const pathname = usePathname();
+    const profileMenuRef = useRef<HTMLDivElement>(null);
+    useClickOutside(profileMenuRef, () => { setMenuOpen(false); setSubmenu(null); }, menuOpen);
 
     useEffect(() => {
         const stored = localStorage.getItem("user");
@@ -67,6 +70,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                 <span className="font-semibold text-text text-sm">Pyramid</span>
             </div>
 
+            <div ref={profileMenuRef}>
             <button
                 onClick={() => setMenuOpen(function (prev) { return !prev; })}
                 className="flex items-center gap-2 mb-6 px-1"
@@ -151,6 +155,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
                     </div>
                 </div>
             ) : null}
+            </div>
 
             <div className="text-xs text-text-muted mb-2 px-1 flex items-center gap-1">
                 <span>Workspace</span>

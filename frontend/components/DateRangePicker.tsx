@@ -16,6 +16,11 @@ function parse(dateStr?: string) {
     return isNaN(d.getTime()) ? null : d;
 }
 
+function dateKey(dateStr?: string) {
+    const d = parse(dateStr);
+    return d ? d.toISOString().slice(0, 10) : null;
+}
+
 function fmt(dateStr?: string) {
     const d = parse(dateStr);
     if (!d) return null;
@@ -62,6 +67,8 @@ function Calendar({
 
     const startDate = parse(start);
     const endDate = parse(end);
+    const startKey = dateKey(start);
+    const endKey = dateKey(end);
 
     return (
         <div className="p-3 w-64">
@@ -82,15 +89,17 @@ function Calendar({
                     if (!c.current) {
                         return <div key={i} className="text-xs text-text-muted/40 py-1.5">{c.day > 0 ? c.day : ""}</div>;
                     }
-                    const isStart = start === c.iso;
-                    const isEnd = end === c.iso;
+                    const isStart = startKey === c.iso;
+                    const isEnd = endKey === c.iso;
                     const inRange = startDate && endDate && parse(c.iso)! > startDate && parse(c.iso)! < endDate;
+                    const selected = isStart || isEnd;
                     return (
                         <button
                             key={i}
                             onClick={() => onPick(c.iso)}
+                            style={selected ? { backgroundColor: "var(--color-text)", color: "var(--color-surface)" } : undefined}
                             className={`text-xs py-1.5 rounded-full mx-auto w-7 h-7 flex items-center justify-center transition-colors
-                                ${isStart || isEnd ? "bg-text text-white font-semibold" : inRange ? "bg-primary/10 text-primary" : "text-text hover:bg-surface-muted"}`}
+                                ${selected ? "font-semibold" : inRange ? "bg-primary/10 text-primary" : "text-text hover:bg-surface-muted"}`}
                         >
                             {c.day}
                         </button>
